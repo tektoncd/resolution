@@ -1,0 +1,110 @@
+# Copyright 2022 The Tekton Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# tekton-resolution-admin is the aggregate of all other
+# resolution-related ClusterRoles into a single "most powerful"
+# ClusterRole.
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: tekton-resolution-admin
+  labels:
+    resolution.tekton.dev/release: devel
+aggregationRule:
+  clusterRoleSelectors:
+  - matchLabels:
+      resolution.tekton.dev/controller: "true"
+rules: [] # Rules are automatically filled in by the controller manager.
+
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: tekton-resolution-core
+  labels:
+    resolution.tekton.dev/release: devel
+    resolution.tekton.dev/controller: "true"
+rules:
+  # Allow creating events associated with resources we are controlling.
+  - apiGroups: [""]
+    resources: ["events"]
+    verbs: ["create"]
+
+  # Allow the reconciliation of exactly our validating webhooks.
+  # This is needed for us to patch in caBundle information.
+  - apiGroups: ["admissionregistration.k8s.io"]
+    resources: ["validatingwebhookconfigurations"]
+    verbs: ["list", "watch"]
+  - apiGroups: ["admissionregistration.k8s.io"]
+    resources: ["validatingwebhookconfigurations"]
+    verbs: ["get", "update"]
+    resourceNames: ["config.webhook.resolution.tekton.dev", "validation.webhook.resolution.tekton.dev"]
+
+  # Allow the reconciliation of exactly our mutating webhooks.
+  # This is needed for us to patch in caBundle information.
+  - apiGroups: ["admissionregistration.k8s.io"]
+    resources: ["mutatingwebhookconfigurations"]
+    verbs: ["list", "watch"]
+  - apiGroups: ["admissionregistration.k8s.io"]
+    resources: ["mutatingwebhookconfigurations"]
+    verbs: ["get", "update"]
+    resourceNames: ["defaulting.webhook.resolution.tekton.dev"]
+
+  # Allow the reconciliation of exactly our CRDs.
+  # This is needed for us to patch in conversion webhook information.
+  - apiGroups: ["apiextensions.k8s.io"]
+    resources: ["customresourcedefinitions"]
+    verbs: ["list", "watch"]
+  - apiGroups: ["apiextensions.k8s.io"]
+    resources: ["customresourcedefinitions"]
+    verbs: ["get", "update"]
+    resourceNames: ["resourcerequests.resolution.tekton.dev"]
+
+  # Allow us to reconcile our resources.
+  - apiGroups: ["resolution.tekton.dev"]
+    resources: ["*"]
+    verbs: ["get", "list", "update", "watch"]
+
+  # The webhook configured the namespace as the OwnerRef on various cluster-scoped resources,
+  # which requires we can Get the system namespace.
+  - apiGroups: [""]
+    resources: ["namespaces"]
+    verbs: ["get"]
+    resourceNames: ["tekton-remote-resolution"]
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  # ClusterRole for the controller.
+  name: tekton-resolution-controller
+  labels:
+    resolution.tekton.dev/release: devel
+    resolution.tekton.dev/controller: "true"
+rules:
+  - apiGroups: ["resolution.tekton.dev"]
+    resources: ["resourcerequests", "resourcerequests/status"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  # ClusterRole for resolvers to monitor and update resourcerequests.
+  name: tekton-resolution-resource-request-updates
+  labels:
+    resolution.tekton.dev/release: devel
+    resolution.tekton.dev/controller: "true"
+rules:
+  - apiGroups: ["resolution.tekton.dev"]
+    resources: ["resourcerequests", "resourcerequests/status"]
+    verbs: ["get", "list", "watch", "update", "patch"]
