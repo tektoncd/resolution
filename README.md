@@ -1,5 +1,10 @@
 # Tekton Resolution
 
+**Warning: Tekton Resolution is under development and currently only
+suitable for those interested in testing the project at its bleeding
+edge. Breakages to the API, types, libraries and resolvers are unavoidable
+at this stage.**
+
 Pluggable resolution for Tekton resources (like `Tasks` and
 `Pipelines`). Store and utilize Tekton resources from git,
 from oci registries, or from anywhere else.
@@ -12,11 +17,6 @@ Tekton Resolution is aiming for the following near-term goals:
   can be fetched from in their CI/CD clusters.
 
 ## Getting Started
-
-**Warning: Tekton Resolution is under development and currently only
-suitable for those interested in testing the project at its bleeding
-edge. Breakages to the API, types, libraries and resolvers are unavoidable
-at this stage.**
 
 ### Requirements
 
