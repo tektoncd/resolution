@@ -20,8 +20,8 @@ Tekton Resolution is aiming for the following near-term goals:
 
 ### Requirements
 
-- A cluster runnning the very latest version of Tekton Pipelines with
-  the `alpha` feature gate enabled.
+- A cluster running this [in-progress pull request of Tekton Pipelines](https://github.com/tektoncd/pipeline/pull/4596)
+  with the `alpha` feature gate enabled.
 - `ko` installed.
 
 ### Install
