@@ -4,8 +4,8 @@
 
 ### Requirements
 
-- A cluster runnning the very latest version of Tekton Pipelines with
-  the `alpha` feature gate enabled.
+- A cluster running this [in-progress pull request of Tekton Pipelines](https://github.com/tektoncd/pipeline/pull/4596)
+  with the `alpha` feature gate enabled.
 - `ko` installed.
 - The `tekton-remote-resolution` namespace and `ResourceRequest`
   controller installed. See [../README.md](../README.md).
