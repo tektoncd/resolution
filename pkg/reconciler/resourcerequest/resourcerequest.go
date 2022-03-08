@@ -29,6 +29,8 @@ import (
 	"knative.dev/pkg/reconciler"
 )
 
+// Reconciler is a knative reconciler for processing ResourceRequest
+// objects
 type Reconciler struct{}
 
 var _ rrreconciler.Interface = (*Reconciler)(nil)
@@ -36,6 +38,8 @@ var _ rrreconciler.Interface = (*Reconciler)(nil)
 // TODO(sbwsg): This should be exposed via ConfigMap.
 const defaultMaximumResolutionDuration = 1 * time.Minute
 
+// ReconcileKind processes updates to ResourceRequests, sets status
+// fields on it, and returns any errors experienced along the way.
 func (r *Reconciler) ReconcileKind(ctx context.Context, rr *v1alpha1.ResourceRequest) reconciler.Event {
 	if rr == nil {
 		return nil

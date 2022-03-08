@@ -37,35 +37,44 @@ type CRDRequester struct {
 	lister    rrlisters.ResourceRequestLister
 }
 
+// NewCRDRequester returns an implementation of Requester that uses
+// ResourceRequest CRD objects to mediate between the caller who wants a
+// resource (e.g. Tekton Pipelines) and the responder who can fetch
+// it (e.g. the gitresolver)
 func NewCRDRequester(clientset rrclient.Interface, lister rrlisters.ResourceRequestLister) *CRDRequester {
 	return &CRDRequester{clientset, lister}
 }
 
 var _ Requester = &CRDRequester{}
 
+// Submit constructs a ResourceRequest object and submits it to the
+// kubernetes cluster, returning any errors experienced while doing so.
+// If ResourceRequest is succeeded then it returns the resolved data.
 func (r *CRDRequester) Submit(ctx context.Context, resolver ResolverName, req Request) (ResolvedResource, error) {
 	rr, _ := r.lister.ResourceRequests(req.Namespace()).Get(req.Name())
 	if rr == nil {
 		if err := r.createResourceRequest(ctx, resolver, req); err != nil {
 			return nil, err
-		} else {
-			return nil, resolutioncommon.ErrorRequestInProgress
 		}
+		return nil, resolutioncommon.ErrorRequestInProgress
 	}
 
 	if rr.Status.GetCondition(apis.ConditionSucceeded).IsUnknown() {
-		// TODO(sbwsg): appendOwnerReference and then submit update to
-		// RR.
+		// TODO(sbwsg): This should be where an existing
+		// resource is given an additional owner reference so
+		// that it doesn't get deleted until the caller is done
+		// with it. Use appendOwnerReference and then submit
+		// update to ResourceRequest.
 		return nil, resolutioncommon.ErrorRequestInProgress
 	}
 
 	if rr.Status.GetCondition(apis.ConditionSucceeded).IsTrue() {
 		return crdIntoResource(rr), nil
-	} else {
-		message := rr.Status.GetCondition(apis.ConditionSucceeded).GetMessage()
-		err := resolutioncommon.NewError(resolutioncommon.ReasonResolutionFailed, errors.New(message))
-		return nil, err
 	}
+
+	message := rr.Status.GetCondition(apis.ConditionSucceeded).GetMessage()
+	err := resolutioncommon.NewError(resolutioncommon.ReasonResolutionFailed, errors.New(message))
+	return nil, err
 }
 
 func (r *CRDRequester) createResourceRequest(ctx context.Context, resolver ResolverName, req Request) error {

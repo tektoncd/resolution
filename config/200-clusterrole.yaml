@@ -25,7 +25,8 @@ aggregationRule:
   clusterRoleSelectors:
   - matchLabels:
       resolution.tekton.dev/controller: "true"
-rules: [] # Rules are automatically filled in by the controller manager.
+# Rules are automatically filled in by the controller manager.
+rules: []
 
 ---
 kind: ClusterRole

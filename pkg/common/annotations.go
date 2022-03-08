@@ -17,5 +17,7 @@ limitations under the License.
 package common
 
 const (
+	// AnnotationKeyContentType is the annotation key passed back
+	// with a resolved resource's content type.
 	AnnotationKeyContentType = "content-type"
 )

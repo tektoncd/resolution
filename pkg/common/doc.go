@@ -15,13 +15,13 @@ limitations under the License.
 */
 
 /*
-	Package common provides constants, errors, labels, annotations and
-	helpers that are commonly needed by resolvers and clients need during
-	remote resource resolution.
+Package common provides constants, errors, labels, annotations and
+helpers that are commonly needed by resolvers and clients need during
+remote resource resolution.
 
-	Ideally this package will never import directly or transitively any
-	types from kubernetes, knative, tekton pipelines, etc. The intention is
-	to keep this package tightly focused on shared primitives that are needed
-	regardless of underlying implementation of resolver or client.
+Ideally this package will never import directly or transitively any
+types from kubernetes, knative, tekton pipelines, etc. The intention is
+to keep this package tightly focused on shared primitives that are needed
+regardless of underlying implementation of resolver or client.
 */
 package common

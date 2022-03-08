@@ -26,6 +26,8 @@ import (
 	resourcerequestreconciler "github.com/tektoncd/resolution/pkg/client/injection/reconciler/resolution/v1alpha1/resourcerequest"
 )
 
+// NewController returns a knative controller for processing
+// ResourceRequest objects.
 func NewController(ctx context.Context, cmw configmap.Watcher) *controller.Impl {
 	r := &Reconciler{}
 	impl := resourcerequestreconciler.NewImpl(ctx, r)

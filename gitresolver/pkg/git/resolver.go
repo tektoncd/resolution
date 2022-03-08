@@ -31,28 +31,43 @@ import (
 	"github.com/tektoncd/resolution/pkg/resolver/framework"
 )
 
+// LabelValueGitResolverType is the value to use for the
+// resolution.tekton.dev/type label on resource requests
 const LabelValueGitResolverType string = "git"
+
+// GitResolverName is the name that the git resolver should be
+// associated with
 const GitResolverName string = "Git"
+
+// YAMLContentType is the content type to use when returning yaml
 const YAMLContentType string = "application/x-yaml"
 
 var _ framework.Resolver = &Resolver{}
 
+// Resolver implements a framework.Resolver that can fetch files from git.
 type Resolver struct{}
 
+// Initialize performs any setup required by the gitresolver.
 func (r *Resolver) Initialize(ctx context.Context) error {
 	return nil
 }
 
+// GetName returns the string name that the gitresolver should be
+// associated with.
 func (r *Resolver) GetName(_ context.Context) string {
 	return GitResolverName
 }
 
+// GetSelector returns the labels that resource requests are required to have for
+// the gitresolver to process them.
 func (r *Resolver) GetSelector(_ context.Context) map[string]string {
 	return map[string]string{
 		resolutioncommon.LabelKeyResolverType: LabelValueGitResolverType,
 	}
 }
 
+// ValidateParams returns an error if the given parameter map is not
+// valid for a resource request targeting the gitresolver.
 func (r *Resolver) ValidateParams(_ context.Context, params map[string]string) error {
 	required := []string{
 		URLParam,
@@ -83,6 +98,8 @@ func (r *Resolver) ValidateParams(_ context.Context, params map[string]string) e
 	return nil
 }
 
+// Resolve performs the work of fetching a file from git given a map of
+// parameters.
 func (r *Resolver) Resolve(_ context.Context, params map[string]string) (framework.ResolvedResource, error) {
 	repo := params[URLParam]
 	commit := params[CommitParam]
@@ -146,10 +163,13 @@ type ResolvedGitResource struct {
 
 var _ framework.ResolvedResource = &ResolvedGitResource{}
 
+// Data returns the bytes of the file resolved from git.
 func (r *ResolvedGitResource) Data() []byte {
 	return r.Content
 }
 
+// Annotations returns the metadata that accompanies the file fetched
+// from git.
 func (r *ResolvedGitResource) Annotations() map[string]string {
 	return map[string]string{
 		AnnotationKeyCommitHash:                   r.Commit,

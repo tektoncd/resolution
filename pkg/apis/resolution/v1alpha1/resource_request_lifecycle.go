@@ -19,17 +19,8 @@ func (*ResourceRequest) GetConditionSet() apis.ConditionSet {
 	return resourceRequestCondSet
 }
 
-// InitializeConditions set ths initial values of the conditions.
-func (rr *ResourceRequestStatus) InitializeConditions() {
-	resourceRequestCondSet.Manage(rr).InitializeConditions()
-}
-
 // HasStarted returns whether a ResourceRequests Status is considered to
 // be in-progress.
-//
-// TODO: This might be better served by having a "start time" recorded
-// in the status at the point that a resource request's processing has
-// begun.
 func (rr *ResourceRequest) HasStarted() bool {
 	return rr.Status.GetCondition(apis.ConditionSucceeded).IsUnknown()
 }
@@ -39,6 +30,11 @@ func (rr *ResourceRequest) HasStarted() bool {
 func (rr *ResourceRequest) IsDone() bool {
 	finalStateIsUnknown := rr.Status.GetCondition(apis.ConditionSucceeded).IsUnknown()
 	return !finalStateIsUnknown
+}
+
+// InitializeConditions set ths initial values of the conditions.
+func (s *ResourceRequestStatus) InitializeConditions() {
+	resourceRequestCondSet.Manage(s).InitializeConditions()
 }
 
 // MarkFailed sets the Succeeded condition to False with an accompanying

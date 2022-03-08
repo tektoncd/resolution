@@ -16,7 +16,14 @@ limitations under the License.
 
 package git
 
+// URLParam is the git repo url
 const URLParam string = "url"
+
+// PathParam is the path into the git repo where a file is located
 const PathParam string = "path"
+
+// CommitParam is the commit hash that a file should be fetched from
 const CommitParam string = "commit"
+
+// BranchParam is the git branch that a file should be fetched from
 const BranchParam string = "branch"

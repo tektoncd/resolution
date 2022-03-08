@@ -18,13 +18,14 @@ package framework
 
 import (
 	"context"
-	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/tektoncd/resolution/pkg/apis/resolution/v1alpha1"
 	rrclient "github.com/tektoncd/resolution/pkg/client/injection/client"
 	rrinformer "github.com/tektoncd/resolution/pkg/client/injection/informers/resolution/v1alpha1/resourcerequest"
 	rrlister "github.com/tektoncd/resolution/pkg/client/listers/resolution/v1alpha1"
+	"github.com/tektoncd/resolution/pkg/common"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/tools/cache"
@@ -35,6 +36,9 @@ import (
 	"knative.dev/pkg/reconciler"
 )
 
+// NewController returns a knative controller for a Tekton Resolver.
+// This sets up a lot of the boilerplate that individual resolvers
+// shouldn't need to be concerned with since it's common to all of them.
 func NewController(ctx context.Context, resolver Resolver) func(context.Context, configmap.Watcher) *controller.Impl {
 	if err := validateResolver(ctx, resolver); err != nil {
 		panic(err.Error())
@@ -128,14 +132,16 @@ func leaderAwareFuncs(lister rrlister.ResourceRequestLister) reconciler.LeaderAw
 	}
 }
 
-var ErrorMissingTypeSelector = errors.New(`invalid resolver: minimum selector must include "resolution.tekton.dev/type"`)
+// ErrorMissingTypeSelector is returned when a resolver does not return
+// a selector with a type label from its GetSelector method.
+var ErrorMissingTypeSelector = fmt.Errorf("invalid resolver: minimum selector must include %q", common.LabelKeyResolverType)
 
 func validateResolver(ctx context.Context, r Resolver) error {
 	sel := r.GetSelector(ctx)
 	if sel == nil {
 		return ErrorMissingTypeSelector
 	}
-	if sel["resolution.tekton.dev/type"] == "" {
+	if sel[common.LabelKeyResolverType] == "" {
 		return ErrorMissingTypeSelector
 	}
 	return nil
