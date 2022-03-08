@@ -53,6 +53,8 @@ type ResourceRequestList struct {
 	Items           []ResourceRequest `json:"items"`
 }
 
+// ResourceRequestSpec are all the fields in the spec of the
+// ResourceRequest CRD.
 type ResourceRequestSpec struct {
 	// Parameters are the runtime attributes passed to
 	// the resolver to help it figure out how to resolve the
@@ -62,11 +64,15 @@ type ResourceRequestSpec struct {
 	Parameters map[string]string `json:"params,omitempty"`
 }
 
+// ResourceRequestStatus are all the fields in a ResourceRequest's
+// status subresource.
 type ResourceRequestStatus struct {
 	duckv1.Status               `json:",inline"`
 	ResourceRequestStatusFields `json:",inline"`
 }
 
+// ResourceRequestStatusFields are the ResourceRequest-specific fields
+// for the status subresource.
 type ResourceRequestStatusFields struct {
 	// Data is a string representation of the resolved content
 	// of the requested resource in-lined into the ResourceRequest

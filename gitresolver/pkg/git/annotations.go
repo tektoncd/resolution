@@ -17,5 +17,7 @@ limitations under the License.
 package git
 
 const (
+	// AnnotationKeyCommitHash is the commit hash that was fetched
+	// from git
 	AnnotationKeyCommitHash = "commit"
 )

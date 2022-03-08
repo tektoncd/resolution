@@ -22,6 +22,9 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+// ResolverName is the type used for a resolver's name and is mostly
+// used to ensure the function signatures that accept it are clear on the
+// purpose for the given string.
 type ResolverName string
 
 // Requester is the interface implemented by a type that knows how to
@@ -36,7 +39,7 @@ type Requester interface {
 // for a remote resource. Implementing this interface gives the underlying
 // type an opportunity to control properties such as whether the name of
 // a request has particular properties, whether the request should be made
-// to a specific namespace, and precisely which paramaters should be included.
+// to a specific namespace, and precisely which parameters should be included.
 type Request interface {
 	Name() string
 	Namespace() string

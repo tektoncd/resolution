@@ -18,7 +18,8 @@ package framework
 
 import "context"
 
-// An implementation of Resolver fetches resources of a given type
+// Resolver is the interface to implement for type-specific resource
+// resolution. It fetches resources from a given type of remote location
 // and returns their content along with any associated annotations.
 type Resolver interface {
 	// Initialize is called at the moment the resolver controller is

@@ -25,20 +25,25 @@ type BasicRequest struct {
 	params    map[string]string
 }
 
+// NewRequest returns an instance of a BasicRequest with the given name,
+// namespace and params.
 func NewRequest(name, namespace string, params map[string]string) Request {
 	return &BasicRequest{name, namespace, params}
 }
 
 var _ Request = &BasicRequest{}
 
+// Name returns the name attached to the request
 func (req *BasicRequest) Name() string {
 	return req.name
 }
 
+// Namespace returns the namespace that the request is associated with
 func (req *BasicRequest) Namespace() string {
 	return req.namespace
 }
 
+// Params are the map of parameters associated with this request
 func (req *BasicRequest) Params() map[string]string {
 	return req.params
 }

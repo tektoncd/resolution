@@ -19,16 +19,18 @@ package v1alpha1
 import (
 	"context"
 
+	"github.com/tektoncd/resolution/pkg/common"
 	"knative.dev/pkg/apis"
 )
 
-const TypeLabel = "resolution.tekton.dev/type"
-
+// Validate checks that a submitted ResourceRequest is structurally
+// sound before the controller receives it.
 func (rr *ResourceRequest) Validate(ctx context.Context) (errs *apis.FieldError) {
 	errs = errs.Also(validateTypeLabel(rr))
 	return errs.Also(rr.Spec.Validate(ctx).ViaField("spec"))
 }
 
+// Validate checks the the spec field of a ResourceRequest is valid.
 func (rs *ResourceRequestSpec) Validate(ctx context.Context) *apis.FieldError {
 	return nil
 }
@@ -36,7 +38,7 @@ func (rs *ResourceRequestSpec) Validate(ctx context.Context) *apis.FieldError {
 func validateTypeLabel(rr *ResourceRequest) *apis.FieldError {
 	typeLabel := getTypeLabel(rr.ObjectMeta.Labels)
 	if typeLabel == "" {
-		return apis.ErrMissingField(TypeLabel).ViaField("labels").ViaField("meta")
+		return apis.ErrMissingField(common.LabelKeyResolverType).ViaField("labels").ViaField("meta")
 	}
 	return nil
 }
@@ -45,5 +47,5 @@ func getTypeLabel(labels map[string]string) string {
 	if labels == nil {
 		return ""
 	}
-	return labels[TypeLabel]
+	return labels[common.LabelKeyResolverType]
 }

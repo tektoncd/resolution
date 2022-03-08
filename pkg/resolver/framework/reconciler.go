@@ -37,6 +37,9 @@ import (
 	"knative.dev/pkg/reconciler"
 )
 
+// Reconciler handles ResourceRequest objects, performs functionality
+// common to all resolvers and delegates resolver-specific actions
+// to its embedded type-specific Resolver object.
 type Reconciler struct {
 	// Implements reconciler.LeaderAware
 	reconciler.LeaderAwareFuncs
@@ -50,10 +53,15 @@ type Reconciler struct {
 var _ reconciler.LeaderAware = &Reconciler{}
 
 // TODO(sbwsg): This should be configurable via ConfigMap. It differs
-// from the ResourceRequest reconciler's timeout mostly for testing at this
+// from the core ResourceRequest reconciler's timeout mostly for testing at this
 // point.
 const defaultMaximumResolutionDuration = 30 * time.Second
 
+// Reconcile receives the string key of a ResourceRequest object, looks
+// it up, checks it for common errors, and then delegates
+// resolver-specific functionality to the reconciler's embedded
+// type-specific resolver. Any errors that occur during validation or
+// resolution are handled by updating or failing the ResourceRequest.
 func (r *Reconciler) Reconcile(ctx context.Context, key string) error {
 	namespace, name, err := cache.SplitMetaNamespaceKey(key)
 	if err != nil {
@@ -77,8 +85,8 @@ func (r *Reconciler) Reconcile(ctx context.Context, key string) error {
 }
 
 func (r *Reconciler) resolve(ctx context.Context, key string, rr *v1alpha1.ResourceRequest) error {
-	errChan := make(chan error, 0)
-	resourceChan := make(chan ResolvedResource, 0)
+	errChan := make(chan error)
+	resourceChan := make(chan ResolvedResource)
 
 	go func() {
 		validationError := r.resolver.ValidateParams(ctx, rr.Spec.Parameters)
@@ -164,7 +172,7 @@ type statusDataPatch struct {
 func (r *Reconciler) writeResolvedData(ctx context.Context, rr *v1alpha1.ResourceRequest, resource ResolvedResource) error {
 	encodedData := base64.StdEncoding.Strict().EncodeToString(resource.Data())
 	patchBytes, err := json.Marshal(map[string]statusDataPatch{
-		"status": statusDataPatch{
+		"status": {
 			Data:        encodedData,
 			Annotations: resource.Annotations(),
 		},

@@ -21,7 +21,7 @@ import (
 	"fmt"
 )
 
-// common.Error embeds both a short machine-readable string reason for resolution
+// Error embeds both a short machine-readable string reason for resolution
 // problems alongside the original error generated during the resolution flow.
 type Error struct {
 	Reason   string
@@ -36,12 +36,12 @@ func (e *Error) Error() string {
 }
 
 // Unwrap returns the original error without the Reason annotation. This is
-// intended to support usage of errors.Is and errors.As with common.Errors.
+// intended to support usage of errors.Is and errors.As with Errors.
 func (e *Error) Unwrap() error {
 	return e.Original
 }
 
-// NewError returns a common.Error with the given reason and underlying
+// NewError returns a Error with the given reason and underlying
 // original error.
 func NewError(reason string, err error) *Error {
 	return &Error{
