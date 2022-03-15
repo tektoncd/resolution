@@ -55,10 +55,14 @@ field.
 
 ## Parameters
 
-
 | Param Name | Description                                                                  | Example Value                                |
 |------------|------------------------------------------------------------------------------|----------------------------------------------|
 | `url`      | URL of the repo to fetch.                                                    | `https://github.com/tektoncd/catalog.git`    |
 | `commit`   | git commit SHA to checkout a file from.                                      | `aeb957601cf41c012be462827053a21a420befca`   |
 | `branch`   | The branch name to checkout a file from. Either this or commit but not both. | `main`                                       |
 | `path`     | Where to find the file in the repo.                                          | `/task/golang-build/0.3/golang-build.yaml`   |
+
+Except as otherwise noted, the content of this page is licensed under the
+[Creative Commons Attribution 4.0 License](https://creativecommons.org/licenses/by/4.0/),
+and code samples are licensed under the
+[Apache 2.0 License](https://www.apache.org/licenses/LICENSE-2.0).
