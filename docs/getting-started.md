@@ -45,6 +45,7 @@ git checkout pipeline_remote_resolution_dev
 And then install pipelines from this dev branch:
 
 ```sh
+ko apply -f ./config/100-namespace
 ko apply -f ./config
 ```
 
@@ -187,3 +188,8 @@ Now we can check the logs of the PipelineRun's only task:
 kubectl logs run-basic-pipeline-from-git-task-1-pod
 # This should print "hello liza"
 ```
+
+Except as otherwise noted, the content of this page is licensed under the
+[Creative Commons Attribution 4.0 License](https://creativecommons.org/licenses/by/4.0/),
+and code samples are licensed under the
+[Apache 2.0 License](https://www.apache.org/licenses/LICENSE-2.0).
