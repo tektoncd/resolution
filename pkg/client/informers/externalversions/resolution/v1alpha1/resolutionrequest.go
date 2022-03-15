@@ -32,59 +32,59 @@ import (
 	cache "k8s.io/client-go/tools/cache"
 )
 
-// ResourceRequestInformer provides access to a shared informer and lister for
-// ResourceRequests.
-type ResourceRequestInformer interface {
+// ResolutionRequestInformer provides access to a shared informer and lister for
+// ResolutionRequests.
+type ResolutionRequestInformer interface {
 	Informer() cache.SharedIndexInformer
-	Lister() v1alpha1.ResourceRequestLister
+	Lister() v1alpha1.ResolutionRequestLister
 }
 
-type resourceRequestInformer struct {
+type resolutionRequestInformer struct {
 	factory          internalinterfaces.SharedInformerFactory
 	tweakListOptions internalinterfaces.TweakListOptionsFunc
 	namespace        string
 }
 
-// NewResourceRequestInformer constructs a new informer for ResourceRequest type.
+// NewResolutionRequestInformer constructs a new informer for ResolutionRequest type.
 // Always prefer using an informer factory to get a shared informer instead of getting an independent
 // one. This reduces memory footprint and number of connections to the server.
-func NewResourceRequestInformer(client versioned.Interface, namespace string, resyncPeriod time.Duration, indexers cache.Indexers) cache.SharedIndexInformer {
-	return NewFilteredResourceRequestInformer(client, namespace, resyncPeriod, indexers, nil)
+func NewResolutionRequestInformer(client versioned.Interface, namespace string, resyncPeriod time.Duration, indexers cache.Indexers) cache.SharedIndexInformer {
+	return NewFilteredResolutionRequestInformer(client, namespace, resyncPeriod, indexers, nil)
 }
 
-// NewFilteredResourceRequestInformer constructs a new informer for ResourceRequest type.
+// NewFilteredResolutionRequestInformer constructs a new informer for ResolutionRequest type.
 // Always prefer using an informer factory to get a shared informer instead of getting an independent
 // one. This reduces memory footprint and number of connections to the server.
-func NewFilteredResourceRequestInformer(client versioned.Interface, namespace string, resyncPeriod time.Duration, indexers cache.Indexers, tweakListOptions internalinterfaces.TweakListOptionsFunc) cache.SharedIndexInformer {
+func NewFilteredResolutionRequestInformer(client versioned.Interface, namespace string, resyncPeriod time.Duration, indexers cache.Indexers, tweakListOptions internalinterfaces.TweakListOptionsFunc) cache.SharedIndexInformer {
 	return cache.NewSharedIndexInformer(
 		&cache.ListWatch{
 			ListFunc: func(options v1.ListOptions) (runtime.Object, error) {
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.ResolutionV1alpha1().ResourceRequests(namespace).List(context.TODO(), options)
+				return client.ResolutionV1alpha1().ResolutionRequests(namespace).List(context.TODO(), options)
 			},
 			WatchFunc: func(options v1.ListOptions) (watch.Interface, error) {
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.ResolutionV1alpha1().ResourceRequests(namespace).Watch(context.TODO(), options)
+				return client.ResolutionV1alpha1().ResolutionRequests(namespace).Watch(context.TODO(), options)
 			},
 		},
-		&resolutionv1alpha1.ResourceRequest{},
+		&resolutionv1alpha1.ResolutionRequest{},
 		resyncPeriod,
 		indexers,
 	)
 }
 
-func (f *resourceRequestInformer) defaultInformer(client versioned.Interface, resyncPeriod time.Duration) cache.SharedIndexInformer {
-	return NewFilteredResourceRequestInformer(client, f.namespace, resyncPeriod, cache.Indexers{cache.NamespaceIndex: cache.MetaNamespaceIndexFunc}, f.tweakListOptions)
+func (f *resolutionRequestInformer) defaultInformer(client versioned.Interface, resyncPeriod time.Duration) cache.SharedIndexInformer {
+	return NewFilteredResolutionRequestInformer(client, f.namespace, resyncPeriod, cache.Indexers{cache.NamespaceIndex: cache.MetaNamespaceIndexFunc}, f.tweakListOptions)
 }
 
-func (f *resourceRequestInformer) Informer() cache.SharedIndexInformer {
-	return f.factory.InformerFor(&resolutionv1alpha1.ResourceRequest{}, f.defaultInformer)
+func (f *resolutionRequestInformer) Informer() cache.SharedIndexInformer {
+	return f.factory.InformerFor(&resolutionv1alpha1.ResolutionRequest{}, f.defaultInformer)
 }
 
-func (f *resourceRequestInformer) Lister() v1alpha1.ResourceRequestLister {
-	return v1alpha1.NewResourceRequestLister(f.Informer().GetIndexer())
+func (f *resolutionRequestInformer) Lister() v1alpha1.ResolutionRequestLister {
+	return v1alpha1.NewResolutionRequestLister(f.Informer().GetIndexer())
 }

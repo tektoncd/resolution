@@ -15,14 +15,14 @@ limitations under the License.
 */
 
 /*
-Package resourcerequest provides a reconciler for ResourceRequest
+Package resolutionrequest provides a reconciler for ResolutionRequest
 objects. This reconciler is responsible primarily for ensuring
 that global settings and constraints are enforced independent of
-the "type" of ResourceRequest being resolved.
+the "type" of ResolutionRequest being resolved.
 
 Examples of the kinds of global settings that need to be enforced include:
 	* Ensuring that the object's Status fields are correctly initialized.
-	* Ensuring that all ResourceRequests eventually get timed out.
-	* Ensuring that ResourceRequests with populated Data field are marked as complete.
+	* Ensuring that all ResolutionRequests eventually get timed out.
+	* Ensuring that ResolutionRequests with populated Data field are marked as complete.
 */
-package resourcerequest
+package resolutionrequest

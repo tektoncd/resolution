@@ -15,7 +15,7 @@
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
-  name: resourcerequests.resolution.tekton.dev
+  name: resolutionrequests.resolution.tekton.dev
   labels:
     resolution.tekton.dev/release: devel
     knative.dev/crd-install: "true"
@@ -23,9 +23,9 @@ spec:
   group: resolution.tekton.dev
   scope: Namespaced
   names:
-    kind: ResourceRequest
-    plural: resourcerequests
-    singular: resourcerequest
+    kind: ResolutionRequest
+    plural: resolutionrequests
+    singular: resolutionrequest
     categories:
     - all
     - tekton

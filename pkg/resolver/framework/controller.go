@@ -23,7 +23,7 @@ import (
 
 	"github.com/tektoncd/resolution/pkg/apis/resolution/v1alpha1"
 	rrclient "github.com/tektoncd/resolution/pkg/client/injection/client"
-	rrinformer "github.com/tektoncd/resolution/pkg/client/injection/informers/resolution/v1alpha1/resourcerequest"
+	rrinformer "github.com/tektoncd/resolution/pkg/client/injection/informers/resolution/v1alpha1/resolutionrequest"
 	rrlister "github.com/tektoncd/resolution/pkg/client/listers/resolution/v1alpha1"
 	"github.com/tektoncd/resolution/pkg/common"
 	"k8s.io/apimachinery/pkg/labels"
@@ -54,11 +54,11 @@ func NewController(ctx context.Context, resolver Resolver) func(context.Context,
 		}
 
 		r := &Reconciler{
-			LeaderAwareFuncs:         leaderAwareFuncs(rrInformer.Lister()),
-			kubeClientSet:            kubeclientset,
-			resourceRequestLister:    rrInformer.Lister(),
-			resourceRequestClientSet: rrclientset,
-			resolver:                 resolver,
+			LeaderAwareFuncs:           leaderAwareFuncs(rrInformer.Lister()),
+			kubeClientSet:              kubeclientset,
+			resolutionRequestLister:    rrInformer.Lister(),
+			resolutionRequestClientSet: rrclientset,
+			resolver:                   resolver,
 		}
 
 		// TODO(sbwsg): Do better sanitize.
@@ -72,7 +72,7 @@ func NewController(ctx context.Context, resolver Resolver) func(context.Context,
 		})
 
 		rrInformer.Informer().AddEventHandler(cache.FilteringResourceEventHandler{
-			FilterFunc: filterResourceRequestsBySelector(resolver.GetSelector(ctx)),
+			FilterFunc: filterResolutionRequestsBySelector(resolver.GetSelector(ctx)),
 			Handler: cache.ResourceEventHandlerFuncs{
 				AddFunc: impl.Enqueue,
 				UpdateFunc: func(oldObj, newObj interface{}) {
@@ -88,9 +88,9 @@ func NewController(ctx context.Context, resolver Resolver) func(context.Context,
 	}
 }
 
-func filterResourceRequestsBySelector(selector map[string]string) func(obj interface{}) bool {
+func filterResolutionRequestsBySelector(selector map[string]string) func(obj interface{}) bool {
 	return func(obj interface{}) bool {
-		rr, ok := obj.(*v1alpha1.ResourceRequest)
+		rr, ok := obj.(*v1alpha1.ResolutionRequest)
 		if !ok {
 			return false
 		}
@@ -114,7 +114,7 @@ func filterResourceRequestsBySelector(selector map[string]string) func(obj inter
 // fact that the controller crashes if they're missing. It looks
 // like this is bucketing based on labels. Should we use the filter
 // selector from above in the call to lister.List here?
-func leaderAwareFuncs(lister rrlister.ResourceRequestLister) reconciler.LeaderAwareFuncs {
+func leaderAwareFuncs(lister rrlister.ResolutionRequestLister) reconciler.LeaderAwareFuncs {
 	return reconciler.LeaderAwareFuncs{
 		PromoteFunc: func(bkt reconciler.Bucket, enq func(reconciler.Bucket, types.NamespacedName)) error {
 			all, err := lister.List(labels.Everything())

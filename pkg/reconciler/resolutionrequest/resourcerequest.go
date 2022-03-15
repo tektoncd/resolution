@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package resourcerequest
+package resolutionrequest
 
 import (
 	"context"
@@ -22,14 +22,14 @@ import (
 	"time"
 
 	"github.com/tektoncd/resolution/pkg/apis/resolution/v1alpha1"
-	rrreconciler "github.com/tektoncd/resolution/pkg/client/injection/reconciler/resolution/v1alpha1/resourcerequest"
+	rrreconciler "github.com/tektoncd/resolution/pkg/client/injection/reconciler/resolution/v1alpha1/resolutionrequest"
 	resolutioncommon "github.com/tektoncd/resolution/pkg/common"
 	"knative.dev/pkg/apis"
 	"knative.dev/pkg/controller"
 	"knative.dev/pkg/reconciler"
 )
 
-// Reconciler is a knative reconciler for processing ResourceRequest
+// Reconciler is a knative reconciler for processing ResolutionRequest
 // objects
 type Reconciler struct{}
 
@@ -38,9 +38,9 @@ var _ rrreconciler.Interface = (*Reconciler)(nil)
 // TODO(sbwsg): This should be exposed via ConfigMap.
 const defaultMaximumResolutionDuration = 1 * time.Minute
 
-// ReconcileKind processes updates to ResourceRequests, sets status
+// ReconcileKind processes updates to ResolutionRequests, sets status
 // fields on it, and returns any errors experienced along the way.
-func (r *Reconciler) ReconcileKind(ctx context.Context, rr *v1alpha1.ResourceRequest) reconciler.Event {
+func (r *Reconciler) ReconcileKind(ctx context.Context, rr *v1alpha1.ResolutionRequest) reconciler.Event {
 	if rr == nil {
 		return nil
 	}
@@ -68,8 +68,8 @@ func (r *Reconciler) ReconcileKind(ctx context.Context, rr *v1alpha1.ResourceReq
 }
 
 // requestDuration returns the amount of time that has passed since a
-// given ResourceRequest was created.
-func requestDuration(rr *v1alpha1.ResourceRequest) time.Duration {
+// given ResolutionRequest was created.
+func requestDuration(rr *v1alpha1.ResolutionRequest) time.Duration {
 	creationTime := rr.ObjectMeta.CreationTimestamp.DeepCopy().Time.UTC()
 	return time.Now().UTC().Sub(creationTime)
 }

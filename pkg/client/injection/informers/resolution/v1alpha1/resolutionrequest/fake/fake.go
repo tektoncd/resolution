@@ -22,12 +22,12 @@ import (
 	context "context"
 
 	fake "github.com/tektoncd/resolution/pkg/client/injection/informers/factory/fake"
-	resourcerequest "github.com/tektoncd/resolution/pkg/client/injection/informers/resolution/v1alpha1/resourcerequest"
+	resolutionrequest "github.com/tektoncd/resolution/pkg/client/injection/informers/resolution/v1alpha1/resolutionrequest"
 	controller "knative.dev/pkg/controller"
 	injection "knative.dev/pkg/injection"
 )
 
-var Get = resourcerequest.Get
+var Get = resolutionrequest.Get
 
 func init() {
 	injection.Fake.RegisterInformer(withInformer)
@@ -35,6 +35,6 @@ func init() {
 
 func withInformer(ctx context.Context) (context.Context, controller.Informer) {
 	f := fake.Get(ctx)
-	inf := f.Resolution().V1alpha1().ResourceRequests()
-	return context.WithValue(ctx, resourcerequest.Key{}, inf), inf.Informer()
+	inf := f.Resolution().V1alpha1().ResolutionRequests()
+	return context.WithValue(ctx, resolutionrequest.Key{}, inf), inf.Informer()
 }

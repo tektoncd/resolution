@@ -7,7 +7,7 @@
 - A cluster running this [in-progress pull request of Tekton Pipelines](https://github.com/tektoncd/pipeline/pull/4596)
   with the `alpha` feature gate enabled.
 - `ko` installed.
-- The `tekton-remote-resolution` namespace and `ResourceRequest`
+- The `tekton-remote-resolution` namespace and `ResolutionRequest`
   controller installed. See [../README.md](../README.md).
 
 ### Install
@@ -20,12 +20,12 @@ $ ko apply -f ./gitresolver/config
 
 ### Testing it out
 
-Try creating a `ResourceRequest` for a file in git:
+Try creating a `ResolutionRequest` for a file in git:
 
 ```bash
 $ cat <<EOF > rrtest.yaml
 apiVersion: resolution.tekton.dev/v1alpha1
-kind: ResourceRequest
+kind: ResolutionRequest
 metadata:
   name: fetch-catalog-task
   labels:
@@ -38,17 +38,17 @@ EOF
 
 $ kubectl apply -f ./rrtest.yaml
 
-$ kubectl get resourcerequest -w fetch-catalog-task
+$ kubectl get resolutionrequest -w fetch-catalog-task
 ```
 
-You should shortly see the `ResourceRequest` succeed and the content of
+You should shortly see the `ResolutionRequest` succeed and the content of
 the `golang-build.yaml` file base64-encoded in the object's `status.data`
 field.
 
 ## What's Supported?
 
 - At the moment the git resolver can only access public repositories.
-- The git fetch must complete within 30 seconds. The `ResourceRequest`
+- The git fetch must complete within 30 seconds. The `ResolutionRequest`
   object will be automatically failed after 60 seconds. Both of these
   timeouts need to be exposed for operator control via ConfigMap or
   similar but at the moment are just hard-coded.

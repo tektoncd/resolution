@@ -28,8 +28,8 @@ type FakeResolutionV1alpha1 struct {
 	*testing.Fake
 }
 
-func (c *FakeResolutionV1alpha1) ResourceRequests(namespace string) v1alpha1.ResourceRequestInterface {
-	return &FakeResourceRequests{c, namespace}
+func (c *FakeResolutionV1alpha1) ResolutionRequests(namespace string) v1alpha1.ResolutionRequestInterface {
+	return &FakeResolutionRequests{c, namespace}
 }
 
 // RESTClient returns a RESTClient that is used to communicate

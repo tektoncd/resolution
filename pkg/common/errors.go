@@ -79,14 +79,14 @@ func (e *ErrorInvalidResourceKey) Unwrap() error {
 // parameters don't match the resolver's expectations or there is some
 // other structural issue.
 type ErrorInvalidRequest struct {
-	ResourceRequestKey string
-	Message            string
+	ResolutionRequestKey string
+	Message              string
 }
 
 var _ error = &ErrorInvalidRequest{}
 
 func (e *ErrorInvalidRequest) Error() string {
-	return fmt.Sprintf("invalid resource request %q: %s", e.ResourceRequestKey, e.Message)
+	return fmt.Sprintf("invalid resource request %q: %s", e.ResolutionRequestKey, e.Message)
 }
 
 // ErrorGettingResource is an error received during what should
@@ -108,17 +108,17 @@ func (e *ErrorGettingResource) Unwrap() error {
 }
 
 // ErrorUpdatingRequest is an error during any part of the update
-// process for a ResourceRequest, e.g. when attempting to patch the
-// ResourceRequest with resolved data.
+// process for a ResolutionRequest, e.g. when attempting to patch the
+// ResolutionRequest with resolved data.
 type ErrorUpdatingRequest struct {
-	ResourceRequestKey string
-	Original           error
+	ResolutionRequestKey string
+	Original             error
 }
 
 var _ error = &ErrorUpdatingRequest{}
 
 func (e *ErrorUpdatingRequest) Error() string {
-	return fmt.Sprintf("error updating resource request %q with data: %v", e.ResourceRequestKey, e.Original)
+	return fmt.Sprintf("error updating resource request %q with data: %v", e.ResolutionRequestKey, e.Original)
 }
 
 func (e *ErrorUpdatingRequest) Unwrap() error {

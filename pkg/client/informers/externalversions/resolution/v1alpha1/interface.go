@@ -24,8 +24,8 @@ import (
 
 // Interface provides access to all the informers in this group version.
 type Interface interface {
-	// ResourceRequests returns a ResourceRequestInformer.
-	ResourceRequests() ResourceRequestInformer
+	// ResolutionRequests returns a ResolutionRequestInformer.
+	ResolutionRequests() ResolutionRequestInformer
 }
 
 type version struct {
@@ -39,7 +39,7 @@ func New(f internalinterfaces.SharedInformerFactory, namespace string, tweakList
 	return &version{factory: f, namespace: namespace, tweakListOptions: tweakListOptions}
 }
 
-// ResourceRequests returns a ResourceRequestInformer.
-func (v *version) ResourceRequests() ResourceRequestInformer {
-	return &resourceRequestInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+// ResolutionRequests returns a ResolutionRequestInformer.
+func (v *version) ResolutionRequests() ResolutionRequestInformer {
+	return &resolutionRequestInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }

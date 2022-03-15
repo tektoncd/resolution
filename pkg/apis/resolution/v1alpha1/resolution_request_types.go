@@ -23,39 +23,39 @@ import (
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
-// ResourceRequest is an object for requesting the content of
+// ResolutionRequest is an object for requesting the content of
 // a Tekton resource like a pipeline.yaml.
 //
 // +genclient
 // +genreconciler
-type ResourceRequest struct {
+type ResolutionRequest struct {
 	metav1.TypeMeta `json:",inline"`
 	// +optional
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
 	// Spec holds the information for the request part of the resource request.
 	// +optional
-	Spec ResourceRequestSpec `json:"spec,omitempty"`
+	Spec ResolutionRequestSpec `json:"spec,omitempty"`
 
 	// Status communicates the state of the request and, ultimately,
 	// the content of the resolved resource.
 	// +optional
-	Status ResourceRequestStatus `json:"status,omitempty"`
+	Status ResolutionRequestStatus `json:"status,omitempty"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
-// ResourceRequestList is a list of ResourceRequests.
-type ResourceRequestList struct {
+// ResolutionRequestList is a list of ResolutionRequests.
+type ResolutionRequestList struct {
 	metav1.TypeMeta `json:",inline"`
 	// +optional
 	metav1.ListMeta `json:"metadata"`
-	Items           []ResourceRequest `json:"items"`
+	Items           []ResolutionRequest `json:"items"`
 }
 
-// ResourceRequestSpec are all the fields in the spec of the
-// ResourceRequest CRD.
-type ResourceRequestSpec struct {
+// ResolutionRequestSpec are all the fields in the spec of the
+// ResolutionRequest CRD.
+type ResolutionRequestSpec struct {
 	// Parameters are the runtime attributes passed to
 	// the resolver to help it figure out how to resolve the
 	// resource being requested. For example: repo URL, commit SHA,
@@ -64,23 +64,23 @@ type ResourceRequestSpec struct {
 	Parameters map[string]string `json:"params,omitempty"`
 }
 
-// ResourceRequestStatus are all the fields in a ResourceRequest's
+// ResolutionRequestStatus are all the fields in a ResolutionRequest's
 // status subresource.
-type ResourceRequestStatus struct {
-	duckv1.Status               `json:",inline"`
-	ResourceRequestStatusFields `json:",inline"`
+type ResolutionRequestStatus struct {
+	duckv1.Status                 `json:",inline"`
+	ResolutionRequestStatusFields `json:",inline"`
 }
 
-// ResourceRequestStatusFields are the ResourceRequest-specific fields
+// ResolutionRequestStatusFields are the ResolutionRequest-specific fields
 // for the status subresource.
-type ResourceRequestStatusFields struct {
+type ResolutionRequestStatusFields struct {
 	// Data is a string representation of the resolved content
-	// of the requested resource in-lined into the ResourceRequest
+	// of the requested resource in-lined into the ResolutionRequest
 	// object.
 	Data string `json:"data"`
 }
 
 // GetStatus implements KRShaped.
-func (rr *ResourceRequest) GetStatus() *duckv1.Status {
+func (rr *ResolutionRequest) GetStatus() *duckv1.Status {
 	return &rr.Status.Status
 }

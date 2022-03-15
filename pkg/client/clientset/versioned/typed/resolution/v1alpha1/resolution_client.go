@@ -26,7 +26,7 @@ import (
 
 type ResolutionV1alpha1Interface interface {
 	RESTClient() rest.Interface
-	ResourceRequestsGetter
+	ResolutionRequestsGetter
 }
 
 // ResolutionV1alpha1Client is used to interact with features provided by the resolution.tekton.dev group.
@@ -34,8 +34,8 @@ type ResolutionV1alpha1Client struct {
 	restClient rest.Interface
 }
 
-func (c *ResolutionV1alpha1Client) ResourceRequests(namespace string) ResourceRequestInterface {
-	return newResourceRequests(c, namespace)
+func (c *ResolutionV1alpha1Client) ResolutionRequests(namespace string) ResolutionRequestInterface {
+	return newResolutionRequests(c, namespace)
 }
 
 // NewForConfig creates a new ResolutionV1alpha1Client for the given config.
