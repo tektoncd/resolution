@@ -70,7 +70,7 @@ rules:
   - apiGroups: ["apiextensions.k8s.io"]
     resources: ["customresourcedefinitions"]
     verbs: ["get", "update"]
-    resourceNames: ["resourcerequests.resolution.tekton.dev"]
+    resourceNames: ["resolutionrequests.resolution.tekton.dev"]
 
   # Allow us to reconcile our resources.
   - apiGroups: ["resolution.tekton.dev"]
@@ -94,18 +94,18 @@ metadata:
     resolution.tekton.dev/controller: "true"
 rules:
   - apiGroups: ["resolution.tekton.dev"]
-    resources: ["resourcerequests", "resourcerequests/status"]
+    resources: ["resolutionrequests", "resolutionrequests/status"]
     verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
 ---
 kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  # ClusterRole for resolvers to monitor and update resourcerequests.
-  name: tekton-resolution-resource-request-updates
+  # ClusterRole for resolvers to monitor and update resolutionrequests.
+  name: tekton-resolution-resolution-request-updates
   labels:
     resolution.tekton.dev/release: devel
     resolution.tekton.dev/controller: "true"
 rules:
   - apiGroups: ["resolution.tekton.dev"]
-    resources: ["resourcerequests", "resourcerequests/status"]
+    resources: ["resolutionrequests", "resolutionrequests/status"]
     verbs: ["get", "list", "watch", "update", "patch"]

@@ -111,31 +111,31 @@ func (w *wrapResolutionV1alpha1) RESTClient() rest.Interface {
 	panic("RESTClient called on dynamic client!")
 }
 
-func (w *wrapResolutionV1alpha1) ResourceRequests(namespace string) typedresolutionv1alpha1.ResourceRequestInterface {
-	return &wrapResolutionV1alpha1ResourceRequestImpl{
+func (w *wrapResolutionV1alpha1) ResolutionRequests(namespace string) typedresolutionv1alpha1.ResolutionRequestInterface {
+	return &wrapResolutionV1alpha1ResolutionRequestImpl{
 		dyn: w.dyn.Resource(schema.GroupVersionResource{
 			Group:    "resolution.tekton.dev",
 			Version:  "v1alpha1",
-			Resource: "resourcerequests",
+			Resource: "resolutionrequests",
 		}),
 
 		namespace: namespace,
 	}
 }
 
-type wrapResolutionV1alpha1ResourceRequestImpl struct {
+type wrapResolutionV1alpha1ResolutionRequestImpl struct {
 	dyn dynamic.NamespaceableResourceInterface
 
 	namespace string
 }
 
-var _ typedresolutionv1alpha1.ResourceRequestInterface = (*wrapResolutionV1alpha1ResourceRequestImpl)(nil)
+var _ typedresolutionv1alpha1.ResolutionRequestInterface = (*wrapResolutionV1alpha1ResolutionRequestImpl)(nil)
 
-func (w *wrapResolutionV1alpha1ResourceRequestImpl) Create(ctx context.Context, in *v1alpha1.ResourceRequest, opts v1.CreateOptions) (*v1alpha1.ResourceRequest, error) {
+func (w *wrapResolutionV1alpha1ResolutionRequestImpl) Create(ctx context.Context, in *v1alpha1.ResolutionRequest, opts v1.CreateOptions) (*v1alpha1.ResolutionRequest, error) {
 	in.SetGroupVersionKind(schema.GroupVersionKind{
 		Group:   "resolution.tekton.dev",
 		Version: "v1alpha1",
-		Kind:    "ResourceRequest",
+		Kind:    "ResolutionRequest",
 	})
 	uo := &unstructured.Unstructured{}
 	if err := convert(in, uo); err != nil {
@@ -145,62 +145,62 @@ func (w *wrapResolutionV1alpha1ResourceRequestImpl) Create(ctx context.Context, 
 	if err != nil {
 		return nil, err
 	}
-	out := &v1alpha1.ResourceRequest{}
+	out := &v1alpha1.ResolutionRequest{}
 	if err := convert(uo, out); err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (w *wrapResolutionV1alpha1ResourceRequestImpl) Delete(ctx context.Context, name string, opts v1.DeleteOptions) error {
+func (w *wrapResolutionV1alpha1ResolutionRequestImpl) Delete(ctx context.Context, name string, opts v1.DeleteOptions) error {
 	return w.dyn.Namespace(w.namespace).Delete(ctx, name, opts)
 }
 
-func (w *wrapResolutionV1alpha1ResourceRequestImpl) DeleteCollection(ctx context.Context, opts v1.DeleteOptions, listOpts v1.ListOptions) error {
+func (w *wrapResolutionV1alpha1ResolutionRequestImpl) DeleteCollection(ctx context.Context, opts v1.DeleteOptions, listOpts v1.ListOptions) error {
 	return w.dyn.Namespace(w.namespace).DeleteCollection(ctx, opts, listOpts)
 }
 
-func (w *wrapResolutionV1alpha1ResourceRequestImpl) Get(ctx context.Context, name string, opts v1.GetOptions) (*v1alpha1.ResourceRequest, error) {
+func (w *wrapResolutionV1alpha1ResolutionRequestImpl) Get(ctx context.Context, name string, opts v1.GetOptions) (*v1alpha1.ResolutionRequest, error) {
 	uo, err := w.dyn.Namespace(w.namespace).Get(ctx, name, opts)
 	if err != nil {
 		return nil, err
 	}
-	out := &v1alpha1.ResourceRequest{}
+	out := &v1alpha1.ResolutionRequest{}
 	if err := convert(uo, out); err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (w *wrapResolutionV1alpha1ResourceRequestImpl) List(ctx context.Context, opts v1.ListOptions) (*v1alpha1.ResourceRequestList, error) {
+func (w *wrapResolutionV1alpha1ResolutionRequestImpl) List(ctx context.Context, opts v1.ListOptions) (*v1alpha1.ResolutionRequestList, error) {
 	uo, err := w.dyn.Namespace(w.namespace).List(ctx, opts)
 	if err != nil {
 		return nil, err
 	}
-	out := &v1alpha1.ResourceRequestList{}
+	out := &v1alpha1.ResolutionRequestList{}
 	if err := convert(uo, out); err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (w *wrapResolutionV1alpha1ResourceRequestImpl) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *v1alpha1.ResourceRequest, err error) {
+func (w *wrapResolutionV1alpha1ResolutionRequestImpl) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *v1alpha1.ResolutionRequest, err error) {
 	uo, err := w.dyn.Namespace(w.namespace).Patch(ctx, name, pt, data, opts)
 	if err != nil {
 		return nil, err
 	}
-	out := &v1alpha1.ResourceRequest{}
+	out := &v1alpha1.ResolutionRequest{}
 	if err := convert(uo, out); err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (w *wrapResolutionV1alpha1ResourceRequestImpl) Update(ctx context.Context, in *v1alpha1.ResourceRequest, opts v1.UpdateOptions) (*v1alpha1.ResourceRequest, error) {
+func (w *wrapResolutionV1alpha1ResolutionRequestImpl) Update(ctx context.Context, in *v1alpha1.ResolutionRequest, opts v1.UpdateOptions) (*v1alpha1.ResolutionRequest, error) {
 	in.SetGroupVersionKind(schema.GroupVersionKind{
 		Group:   "resolution.tekton.dev",
 		Version: "v1alpha1",
-		Kind:    "ResourceRequest",
+		Kind:    "ResolutionRequest",
 	})
 	uo := &unstructured.Unstructured{}
 	if err := convert(in, uo); err != nil {
@@ -210,18 +210,18 @@ func (w *wrapResolutionV1alpha1ResourceRequestImpl) Update(ctx context.Context, 
 	if err != nil {
 		return nil, err
 	}
-	out := &v1alpha1.ResourceRequest{}
+	out := &v1alpha1.ResolutionRequest{}
 	if err := convert(uo, out); err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (w *wrapResolutionV1alpha1ResourceRequestImpl) UpdateStatus(ctx context.Context, in *v1alpha1.ResourceRequest, opts v1.UpdateOptions) (*v1alpha1.ResourceRequest, error) {
+func (w *wrapResolutionV1alpha1ResolutionRequestImpl) UpdateStatus(ctx context.Context, in *v1alpha1.ResolutionRequest, opts v1.UpdateOptions) (*v1alpha1.ResolutionRequest, error) {
 	in.SetGroupVersionKind(schema.GroupVersionKind{
 		Group:   "resolution.tekton.dev",
 		Version: "v1alpha1",
-		Kind:    "ResourceRequest",
+		Kind:    "ResolutionRequest",
 	})
 	uo := &unstructured.Unstructured{}
 	if err := convert(in, uo); err != nil {
@@ -231,13 +231,13 @@ func (w *wrapResolutionV1alpha1ResourceRequestImpl) UpdateStatus(ctx context.Con
 	if err != nil {
 		return nil, err
 	}
-	out := &v1alpha1.ResourceRequest{}
+	out := &v1alpha1.ResolutionRequest{}
 	if err := convert(uo, out); err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (w *wrapResolutionV1alpha1ResourceRequestImpl) Watch(ctx context.Context, opts v1.ListOptions) (watch.Interface, error) {
+func (w *wrapResolutionV1alpha1ResolutionRequestImpl) Watch(ctx context.Context, opts v1.ListOptions) (watch.Interface, error) {
 	return nil, errors.New("NYI: Watch")
 }

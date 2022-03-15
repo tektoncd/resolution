@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package resourcerequest
+package resolutionrequest
 
 import (
 	"context"
@@ -22,17 +22,17 @@ import (
 	"knative.dev/pkg/configmap"
 	"knative.dev/pkg/controller"
 
-	resourcerequestinformer "github.com/tektoncd/resolution/pkg/client/injection/informers/resolution/v1alpha1/resourcerequest"
-	resourcerequestreconciler "github.com/tektoncd/resolution/pkg/client/injection/reconciler/resolution/v1alpha1/resourcerequest"
+	resolutionrequestinformer "github.com/tektoncd/resolution/pkg/client/injection/informers/resolution/v1alpha1/resolutionrequest"
+	resolutionrequestreconciler "github.com/tektoncd/resolution/pkg/client/injection/reconciler/resolution/v1alpha1/resolutionrequest"
 )
 
 // NewController returns a knative controller for processing
-// ResourceRequest objects.
+// ResolutionRequest objects.
 func NewController(ctx context.Context, cmw configmap.Watcher) *controller.Impl {
 	r := &Reconciler{}
-	impl := resourcerequestreconciler.NewImpl(ctx, r)
+	impl := resolutionrequestreconciler.NewImpl(ctx, r)
 
-	reqinformer := resourcerequestinformer.Get(ctx)
+	reqinformer := resolutionrequestinformer.Get(ctx)
 	reqinformer.Informer().AddEventHandler(controller.HandleAll(impl.Enqueue))
 
 	return impl

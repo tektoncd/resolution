@@ -1,4 +1,4 @@
-kind: ResourceRequest
+kind: ResolutionRequest
 apiVersion: resolution.tekton.dev/v1alpha1
 metadata:
   name: fetch-catalog-task

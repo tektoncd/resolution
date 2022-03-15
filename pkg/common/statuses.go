@@ -20,7 +20,7 @@ package common
 const (
 	// ReasonResolutionInProgress is used to indicate that there are
 	// no issues with the parameters of a request and that a
-	// resolver is working on the ResourceRequest.
+	// resolver is working on the ResolutionRequest.
 	ReasonResolutionInProgress = "ResolutionInProgress"
 )
 
@@ -38,6 +38,6 @@ const (
 	ReasonResolutionFailed = "ResolutionFailed"
 
 	// ReasonResolutionTimedOut indicates that a resolver did not
-	// manage to respond to a ResourceRequest within a timeout.
+	// manage to respond to a ResolutionRequest within a timeout.
 	ReasonResolutionTimedOut = "ResolutionTimedOut"
 )

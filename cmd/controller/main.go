@@ -17,12 +17,12 @@ limitations under the License.
 package main
 
 import (
-	"github.com/tektoncd/resolution/pkg/reconciler/resourcerequest"
+	"github.com/tektoncd/resolution/pkg/reconciler/resolutionrequest"
 	"knative.dev/pkg/injection/sharedmain"
 )
 
 func main() {
 	sharedmain.Main("controller",
-		resourcerequest.NewController,
+		resolutionrequest.NewController,
 	)
 }

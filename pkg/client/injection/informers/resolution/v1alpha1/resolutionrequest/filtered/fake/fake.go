@@ -22,7 +22,7 @@ import (
 	context "context"
 
 	factoryfiltered "github.com/tektoncd/resolution/pkg/client/injection/informers/factory/filtered"
-	filtered "github.com/tektoncd/resolution/pkg/client/injection/informers/resolution/v1alpha1/resourcerequest/filtered"
+	filtered "github.com/tektoncd/resolution/pkg/client/injection/informers/resolution/v1alpha1/resolutionrequest/filtered"
 	controller "knative.dev/pkg/controller"
 	injection "knative.dev/pkg/injection"
 	logging "knative.dev/pkg/logging"
@@ -44,7 +44,7 @@ func withInformer(ctx context.Context) (context.Context, []controller.Informer) 
 	infs := []controller.Informer{}
 	for _, selector := range labelSelectors {
 		f := factoryfiltered.Get(ctx, selector)
-		inf := f.Resolution().V1alpha1().ResourceRequests()
+		inf := f.Resolution().V1alpha1().ResolutionRequests()
 		ctx = context.WithValue(ctx, filtered.Key{Selector: selector}, inf)
 		infs = append(infs, inf.Informer())
 	}

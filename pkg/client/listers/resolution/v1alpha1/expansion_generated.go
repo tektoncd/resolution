@@ -18,10 +18,10 @@ limitations under the License.
 
 package v1alpha1
 
-// ResourceRequestListerExpansion allows custom methods to be added to
-// ResourceRequestLister.
-type ResourceRequestListerExpansion interface{}
+// ResolutionRequestListerExpansion allows custom methods to be added to
+// ResolutionRequestLister.
+type ResolutionRequestListerExpansion interface{}
 
-// ResourceRequestNamespaceListerExpansion allows custom methods to be added to
-// ResourceRequestNamespaceLister.
-type ResourceRequestNamespaceListerExpansion interface{}
+// ResolutionRequestNamespaceListerExpansion allows custom methods to be added to
+// ResolutionRequestNamespaceLister.
+type ResolutionRequestNamespaceListerExpansion interface{}

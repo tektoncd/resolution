@@ -30,7 +30,7 @@ Out of the box Tekton Resolution provides a simple Git resolver that can
 fetch files from public git repositories.
 
 1. Create the `tekton-remote-resolution` namespace and install
-the `ResourceRequest` controller from the root of this repo:
+the `ResolutionRequest` controller from the root of this repo:
 
 ```bash
 $ ko apply -f ./config

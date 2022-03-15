@@ -17,7 +17,7 @@ limitations under the License.
 package common
 
 const (
-	// MessageWaitingForResolver is returned by a ResourceRequest
+	// MessageWaitingForResolver is returned by a ResolutionRequest
 	// when a resolver has not yet returned any data for it or
 	// marked the request as invalid.
 	MessageWaitingForResolver = "waiting for resolver"
