@@ -38,6 +38,8 @@ $ ko apply -f ./config
 
 2. Install [the Git resolver](./gitresolver/README.md).
 
+---
+
 Except as otherwise noted, the content of this page is licensed under the
 [Creative Commons Attribution 4.0 License](https://creativecommons.org/licenses/by/4.0/),
 and code samples are licensed under the
