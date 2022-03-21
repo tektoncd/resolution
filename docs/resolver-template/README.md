@@ -3,10 +3,26 @@
 This directory contains a working Resolver based on the instructions
 from the [developer howto in the docs](../how-to-write-a-resolver.md).
 
-Copy this entire directory to quickly get started writing a new
-Resolver. The entire program is defined in `./cmd/myresolver/main.go`.
+## Using the template to start a new Resolver
 
-## Getting Started
+You can use this as a template to quickly get a new Resolver up and
+running with your own preferred storage backend.
+
+To reuse the template, simply copy this entire subdirectory to a new
+directory. The entire program is defined in
+[`./cmd/myresolver/main.go`](./cmd/myresolver/main.go) and provides stub
+implementations of all the methods defined by the [`framework.Resolver`
+interface](../../pkg/resolver/framework/interface.go).
+
+Once copied you'll need to run `go mod init` and `go mod tidy` at the root
+of your project. We don't need this in `tektoncd/resolution` because this
+submodule relies on the `go.mod` and `go.sum` defined at the root of the repo.
+
+After your go module is initialized and dependencies tidied, update
+`config/myresolver-deployment.yaml`. The `image` field of the container
+will need to point to your new go module's name, with a `ko://` prefix.
+
+## Deploying the Resolver
 
 ### Requirements
 

@@ -154,7 +154,7 @@ simple example we'll return `"myresolver"`:
 
 ```go
 // GetName returns a string name to refer to this resolver by.
-func (r *resolver) GetName(_ context.Context) string {
+func (r *resolver) GetName(context.Context) string {
   return "myresolver"
 }
 ```

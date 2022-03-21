@@ -36,7 +36,7 @@ func (r *resolver) Initialize(context.Context) error {
 }
 
 // GetName returns a string name to refer to this resolver by.
-func (r *resolver) GetName(_ context.Context) string {
+func (r *resolver) GetName(context.Context) string {
 	return "myresolver"
 }
 
@@ -80,11 +80,11 @@ spec:
 type myResolvedResource struct{}
 
 // Data returns the bytes of our hard-coded Pipeline
-func (_ *myResolvedResource) Data() []byte {
+func (*myResolvedResource) Data() []byte {
 	return []byte(pipeline)
 }
 
 // Annotations returns any metadata needed alongside the data. None atm.
-func (_ *myResolvedResource) Annotations() map[string]string {
+func (*myResolvedResource) Annotations() map[string]string {
 	return nil
 }

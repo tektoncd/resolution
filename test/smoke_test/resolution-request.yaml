@@ -1,0 +1,7 @@
+kind: ResolutionRequest
+apiVersion: resolution.tekton.dev/v1alpha1
+metadata:
+  name: simple-resolution-request
+  namespace: tekton-resolution-smoke-test
+  labels:
+    resolution.tekton.dev/type: myresolver
