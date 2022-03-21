@@ -38,7 +38,7 @@ spec:
       serviceAccountName: resolver
       containers:
       - name: controller
-        image: ko://example.com/myresolver/cmd/myresolver
+        image: ko://github.com/tektoncd/resolution/docs/resolver-template/cmd/myresolver
         resources:
           requests:
             cpu: 100m
