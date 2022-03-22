@@ -53,9 +53,9 @@ You'll also need the following:
 - An image registry that you can push images to. If you're using `kind`
   make sure your `KO_DOCKER_REPO` environment variable is set to
   `kind.local`.
-- Tekton Resolution installed in your Kubernetes cluster. See [the
-  getting started
-guide](./getting-started.md#step-3-install-tekton-resolution) for
+- Tekton Pipelines and Tekton Resolution installed in your Kubernetes
+  cluster. See [the getting started
+  guide](./getting-started.md#step-3-install-tekton-resolution) for
   instructions on installing it.
 
 ## First Steps
