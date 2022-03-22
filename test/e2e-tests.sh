@@ -20,6 +20,16 @@ initialize $@
 
 local failed=0
 
+header "Deploying Tekton Pipelines"
+git clone https://github.com/tektoncd/pipeline
+cd pipeline
+git fetch origin pull/4596/head:pipeline_remote_resolution_dev
+git checkout pipeline_remote_resolution_dev
+ko apply -f ./config/100-namespace
+ko apply -f ./config
+cd -
+rm -rf pipeline
+
 header "Deploying Tekton Resolution"
 ko apply -f ./config
 
