@@ -36,6 +36,9 @@ ko apply -f ./config
 header "Deploying Git Resolver"
 ko apply -f ./gitresolver/config
 
+header "Deploying Bundle Resolver"
+ko apply -f ./bundleresolver/config
+
 header "Deploying Resolver Template"
 ko apply -f ./docs/resolver-template/config
 
