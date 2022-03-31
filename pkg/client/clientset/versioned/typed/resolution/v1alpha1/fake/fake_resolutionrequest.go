@@ -117,7 +117,7 @@ func (c *FakeResolutionRequests) UpdateStatus(ctx context.Context, resolutionReq
 // Delete takes name of the resolutionRequest and deletes it. Returns an error if one occurs.
 func (c *FakeResolutionRequests) Delete(ctx context.Context, name string, opts v1.DeleteOptions) error {
 	_, err := c.Fake.
-		Invokes(testing.NewDeleteAction(resolutionrequestsResource, c.ns, name), &v1alpha1.ResolutionRequest{})
+		Invokes(testing.NewDeleteActionWithOptions(resolutionrequestsResource, c.ns, name, opts), &v1alpha1.ResolutionRequest{})
 
 	return err
 }
