@@ -35,6 +35,9 @@ import (
 	knativetest "knative.dev/pkg/test"
 )
 
+// testNamespace is the namespace to construct and run this e2e test in.
+const testNamespace = "tekton-resolution-bundles-test"
+
 // waitInterval is the duration between repeat attempts to check on the
 // status of the test's resolution request.
 const waitInterval = time.Second
@@ -68,9 +71,9 @@ func TestBundleSmoke(t *testing.T) {
 	}
 
 	tearDown := func() {
-		err := kubeClient.CoreV1().Namespaces().Delete(ctx, req.Namespace, metav1.DeleteOptions{})
+		err := kubeClient.CoreV1().Namespaces().Delete(ctx, testNamespace, metav1.DeleteOptions{})
 		if err != nil {
-			t.Errorf("error deleting test namespace %q: %v", req.Namespace, err)
+			t.Errorf("error deleting test namespace %q: %v", testNamespace, err)
 		}
 	}
 
@@ -79,14 +82,14 @@ func TestBundleSmoke(t *testing.T) {
 
 	_, err = kubeClient.CoreV1().Namespaces().Create(ctx, &corev1.Namespace{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: req.Namespace,
+			Name: testNamespace,
 			Labels: map[string]string{
 				"resolution.tekton.dev/test-e2e": "true",
 			},
 		},
 	}, metav1.CreateOptions{})
 	if err != nil {
-		t.Fatalf("Failed to create namespace %s for tests: %s", req.Namespace, err)
+		t.Fatalf("Failed to create namespace %s for tests: %s", testNamespace, err)
 	}
 
 	clientset, err := versioned.NewForConfig(cfg)
@@ -94,13 +97,13 @@ func TestBundleSmoke(t *testing.T) {
 		t.Fatalf("error getting resolution clientset: %v", err)
 	}
 
-	_, err = clientset.ResolutionV1alpha1().ResolutionRequests(req.Namespace).Create(ctx, req, metav1.CreateOptions{})
+	_, err = clientset.ResolutionV1alpha1().ResolutionRequests(testNamespace).Create(ctx, req, metav1.CreateOptions{})
 	if err != nil {
 		t.Fatalf("error creating request: %v", err)
 	}
 
 	err = wait.PollImmediate(waitInterval, waitTimeout, func() (bool, error) {
-		latestResolutionRequest, err := clientset.ResolutionV1alpha1().ResolutionRequests(req.Namespace).Get(ctx, req.Name, metav1.GetOptions{})
+		latestResolutionRequest, err := clientset.ResolutionV1alpha1().ResolutionRequests(testNamespace).Get(ctx, req.Name, metav1.GetOptions{})
 		if err != nil {
 			return false, err
 		}

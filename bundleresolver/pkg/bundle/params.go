@@ -19,10 +19,6 @@ import (
 	"github.com/google/go-containerregistry/pkg/name"
 )
 
-// ParamNamespace is the parameter defining what namespace the service
-// account to use for bundle is stored in.
-const ParamNamespace = "namespace"
-
 // ParamServiceAccount is the parameter defining what service
 // account name to use for bundle requests.
 const ParamServiceAccount = "serviceAccount"
@@ -42,11 +38,6 @@ const ParamKind = "kind"
 // converts them into options to pass as part of a bundle request.
 func OptionsFromParams(params map[string]string) (RequestOptions, error) {
 	opts := RequestOptions{}
-
-	ns, ok := params[ParamNamespace]
-	if !ok {
-		return opts, fmt.Errorf("parameter %q required", ParamNamespace)
-	}
 
 	sa, ok := params[ParamServiceAccount]
 	if !ok {
@@ -71,7 +62,6 @@ func OptionsFromParams(params map[string]string) (RequestOptions, error) {
 		return opts, fmt.Errorf("paramater %q required", ParamKind)
 	}
 
-	opts.Namespace = ns
 	opts.ServiceAccount = sa
 	opts.Bundle = bundle
 	opts.EntryName = name

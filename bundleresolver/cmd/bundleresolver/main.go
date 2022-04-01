@@ -72,26 +72,12 @@ func (r *resolver) Resolve(ctx context.Context, params map[string]string) (frame
 	if err != nil {
 		return nil, err
 	}
+	namespace := common.RequestNamespace(ctx)
 	kc, err := k8schain.New(ctx, r.kubeClientSet, k8schain.Options{
-		Namespace:          opts.Namespace,
+		Namespace:          namespace,
 		ServiceAccountName: opts.ServiceAccount,
 	})
 	ctx, cancelFn := context.WithTimeout(ctx, timeoutDuration)
 	defer cancelFn()
 	return bundle.GetEntry(ctx, kc, opts)
-}
-
-// resolvedResource wraps the data we want to return to Pipelines
-type resolvedResource struct {
-	data []byte
-}
-
-// Data returns the bytes of our hard-coded Pipeline
-func (rr *resolvedResource) Data() []byte {
-	return rr.data
-}
-
-// Annotations returns any metadata needed alongside the data. None atm.
-func (*resolvedResource) Annotations() map[string]string {
-	return nil
 }

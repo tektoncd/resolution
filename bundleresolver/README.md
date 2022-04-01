@@ -4,7 +4,6 @@
 
 | Param Name       | Description                                                                   | Example Value                                              |
 |------------------|-------------------------------------------------------------------------------|------------------------------------------------------------|
-| `namespace`      | The namespace of the service account to use                                   | `default`                                                  |
 | `serviceAccount` | The name of the service account to use when constructing registry credentials | `default`                                                  |
 | `bundle`         | The bundle url pointing at the image to fetch                                 | `gcr.io/tekton-releases/catalog/upstream/golang-build:0.1` |
 | `name`           | The name of the resource to pull out of the bundle                            | `golang-build`                                             |
@@ -42,7 +41,6 @@ metadata:
     resolution.tekton.dev/type: bundle
 spec:
   params:
-    namespace: default
     serviceAccount: default
     bundle: gcr.io/tekton-releases/catalog/upstream/golang-build:0.1
     name: golang-build

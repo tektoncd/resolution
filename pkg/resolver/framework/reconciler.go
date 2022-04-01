@@ -79,8 +79,13 @@ func (r *Reconciler) Reconcile(ctx context.Context, key string) error {
 		return nil
 	}
 
+	// Inject request-scoped information into the context, such as the namespace
+	// that the request originates from.
+	ctx = resolutioncommon.InjectRequestNamespace(ctx, namespace)
+
 	ctx, cancelFn := context.WithTimeout(ctx, defaultMaximumResolutionDuration)
 	defer cancelFn()
+
 	return r.resolve(ctx, key, rr)
 }
 
