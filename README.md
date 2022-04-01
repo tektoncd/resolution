@@ -43,9 +43,9 @@ $ ko apply -f ./config
 
 | Name                                                        | Description                                                                     | Status    |
 |-------------------------------------------------------------|---------------------------------------------------------------------------------|-----------|
-| [`Bundle`](./bundleresolver)                                | Returns entries from oci bundles                                                | Pre-Alpha |
-| [`Git`](./gitresolver)                                      | Returns files from git repos                                                    | Pre-Alpha |
-| [`ClusterScoped`](https://github.com/sbwsg/clusterresolver) | Share a single set of tasks and pipelines across all namespaces in your cluster | Pre-Alpha |
+| [`Bundle`](./bundleresolver)                                | Returns entries from oci bundles                                                | Alpha |
+| [`Git`](./gitresolver)                                      | Returns files from git repos                                                    | Alpha |
+| [`ClusterScoped`](https://github.com/sbwsg/clusterresolver) | Share a single set of tasks and pipelines across all namespaces in your cluster | Alpha |
 
 ---
 
