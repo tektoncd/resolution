@@ -28,7 +28,6 @@ import (
 // RequestOptions are the options used to request a resource from
 // a remote bundle.
 type RequestOptions struct {
-	Namespace      string
 	ServiceAccount string
 	Bundle         string
 	EntryName      string
