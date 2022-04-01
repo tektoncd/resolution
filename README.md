@@ -41,11 +41,15 @@ $ ko apply -f ./config
 
 ## Resolvers
 
+Resolvers do the heavy lifting fetching tekton resources from remote places (like repos, registries, etc...). These are the resolvers that are currently implemented. Once a Resolver is installed in your Tekton cluster all users in that cluster can start making use of it.
+
 | Name                                                        | Description                                                                     | Status    |
 |-------------------------------------------------------------|---------------------------------------------------------------------------------|-----------|
 | [`Bundle`](./bundleresolver)                                | Returns entries from oci bundles                                                | Alpha |
 | [`Git`](./gitresolver)                                      | Returns files from git repos                                                    | Alpha |
-| [`ClusterScoped`](https://github.com/sbwsg/clusterresolver) | Share a single set of tasks and pipelines across all namespaces in your cluster | Alpha |
+| [`ClusterScoped`](https://github.com/sbwsg/clusterresolver) | Shares a single set of tasks and pipelines across all namespaces in your cluster | Alpha |
+
+Want to integrate with a remote location that isn't listed here? [Write a new resolver](./docs/how-to-write-a-resolver.md) or [post an issue requesting one](https://github.com/tektoncd/resolution/issues/new?assignees=&labels=kind%2Ffeature&template=feature-request.md).
 
 ---
 
