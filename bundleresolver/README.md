@@ -1,5 +1,15 @@
 # Bundles Resolver
 
+## Parameters
+
+| Param Name       | Description                                                                   | Example Value                                              |
+|------------------|-------------------------------------------------------------------------------|------------------------------------------------------------|
+| `namespace`      | The namespace of the service account to use                                   | `default`                                                  |
+| `serviceAccount` | The name of the service account to use when constructing registry credentials | `default`                                                  |
+| `bundle`         | The bundle url pointing at the image to fetch                                 | `gcr.io/tekton-releases/catalog/upstream/golang-build:0.1` |
+| `name`           | The name of the resource to pull out of the bundle                            | `golang-build`                                             |
+| `kind`           | The resource kind to pull out of the bundle                                   | `task`                                                     |
+
 ## Getting Started
 
 ### Requirements
@@ -47,16 +57,6 @@ $ kubectl get resolutionrequest -w fetch-catalog-task
 You should shortly see the `ResolutionRequest` succeed and the content of
 the `golang-build.yaml` file base64-encoded in the object's `status.data`
 field.
-
-## Parameters
-
-| Param Name       | Description                                                                   | Example Value                                              |
-|------------------|-------------------------------------------------------------------------------|------------------------------------------------------------|
-| `namespace`      | The namespace of the service account to use                                   | `default`                                                  |
-| `serviceAccount` | The name of the service account to use when constructing registry credentials | `default`                                                  |
-| `bundle`         | The bundle url pointing at the image to fetch                                 | `gcr.io/tekton-releases/catalog/upstream/golang-build:0.1` |
-| `name`           | The name of the resource to pull out of the bundle                            | `golang-build`                                             |
-| `kind`           | The resource kind to pull out of the bundle                                   | `task`                                                     |
 
 ---
 

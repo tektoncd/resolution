@@ -1,5 +1,14 @@
 # Simple Git Resolver
 
+## Parameters
+
+| Param Name | Description                                                                  | Example Value                                |
+|------------|------------------------------------------------------------------------------|----------------------------------------------|
+| `url`      | URL of the repo to fetch.                                                    | `https://github.com/tektoncd/catalog.git`    |
+| `commit`   | git commit SHA to checkout a file from.                                      | `aeb957601cf41c012be462827053a21a420befca`   |
+| `branch`   | The branch name to checkout a file from. Either this or commit but not both. | `main`                                       |
+| `path`     | Where to find the file in the repo.                                          | `/task/golang-build/0.3/golang-build.yaml`   |
+
 ## Getting Started
 
 ### Requirements
@@ -52,15 +61,6 @@ field.
   object will be automatically failed after 60 seconds. Both of these
   timeouts need to be exposed for operator control via ConfigMap or
   similar but at the moment are just hard-coded.
-
-## Parameters
-
-| Param Name | Description                                                                  | Example Value                                |
-|------------|------------------------------------------------------------------------------|----------------------------------------------|
-| `url`      | URL of the repo to fetch.                                                    | `https://github.com/tektoncd/catalog.git`    |
-| `commit`   | git commit SHA to checkout a file from.                                      | `aeb957601cf41c012be462827053a21a420befca`   |
-| `branch`   | The branch name to checkout a file from. Either this or commit but not both. | `main`                                       |
-| `path`     | Where to find the file in the repo.                                          | `/task/golang-build/0.3/golang-build.yaml`   |
 
 ---
 

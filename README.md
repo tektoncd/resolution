@@ -36,7 +36,16 @@ the `ResolutionRequest` controller from the root of this repo:
 $ ko apply -f ./config
 ```
 
-2. Install [the Git resolver](./gitresolver/README.md).
+2. [Install a resolver](#resolvers) or [get started writing your
+   own](./docs/how-to-write-a-resolver.md).
+
+## Resolvers
+
+| Name                                                        | Description                                                                     | Status    |
+|-------------------------------------------------------------|---------------------------------------------------------------------------------|-----------|
+| [`Bundle`](./bundleresolver)                                | Returns entries from oci bundles                                                | Pre-Alpha |
+| [`Git`](./gitresolver)                                      | Returns files from git repos                                                    | Pre-Alpha |
+| [`ClusterScoped`](https://github.com/sbwsg/clusterresolver) | Share a single set of tasks and pipelines across all namespaces in your cluster | Pre-Alpha |
 
 ---
 

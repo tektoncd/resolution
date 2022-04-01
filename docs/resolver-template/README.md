@@ -3,6 +3,12 @@
 This directory contains a working Resolver based on the instructions
 from the [developer howto in the docs](../how-to-write-a-resolver.md).
 
+## Parameters
+
+| Name   | Desccription                 | Example Value               |
+|--------|------------------------------|-----------------------------|
+| `url`  | The repository url.          | `https://example.com/repo/` |
+
 ## Using the template to start a new Resolver
 
 You can use this as a template to quickly get a new Resolver up and
@@ -68,10 +74,6 @@ field.
 ## What's Supported?
 
 - Just one hard-coded `Pipeline` for demonstration purposes.
-
-## Parameters
-
-This Resolver has no parameters.
 
 ---
 
