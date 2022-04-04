@@ -20,7 +20,7 @@ Tekton Resolution is aiming for the following near-term goals:
 
 ### Requirements
 
-- A cluster running this [in-progress pull request of Tekton Pipelines](https://github.com/tektoncd/pipeline/pull/4596)
+- A cluster running the [Tekton Pipelines from its main branch](https://github.com/tektoncd/pipeline)
   with the `alpha` feature gate enabled.
 - `ko` installed.
 
