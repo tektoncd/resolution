@@ -23,8 +23,6 @@ local failed=0
 header "Deploying Tekton Pipelines"
 git clone https://github.com/tektoncd/pipeline
 cd pipeline
-git fetch origin pull/4596/head:pipeline_remote_resolution_dev
-git checkout pipeline_remote_resolution_dev
 ko apply -f ./config/100-namespace
 ko apply -f ./config
 cd -
@@ -41,6 +39,10 @@ ko apply -f ./bundleresolver/config
 
 header "Deploying Resolver Template"
 ko apply -f ./docs/resolver-template/config
+
+# update the feature-flags configmap in the tekton-pipelines namespace
+# so that remote resolution is enabled
+kubectl patch -n tekton-pipelines configmap feature-flags -p '{"data":{"enable-api-fields":"alpha"}}'
 
 wait_until_pods_running "tekton-remote-resolution" || fail_test "Tekton Resolution did not come up"
 

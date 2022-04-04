@@ -34,15 +34,9 @@ git clone https://github.com/tektoncd/pipeline
 
 # cd into the fetched repo
 cd pipeline
-
-# fetch the dev copy of pipelines we're using for this guide
-git fetch origin pull/4596/head:pipeline_remote_resolution_dev
-
-# checkout the dev branch
-git checkout pipeline_remote_resolution_dev
 ```
 
-And then install pipelines from this dev branch:
+And then install pipelines from its main branch:
 
 ```sh
 ko apply -f ./config/100-namespace

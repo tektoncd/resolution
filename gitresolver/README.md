@@ -13,7 +13,7 @@
 
 ### Requirements
 
-- A cluster running this [in-progress pull request of Tekton Pipelines](https://github.com/tektoncd/pipeline/pull/4596)
+- A cluster running [Tekton Pipelines from its main branch](https://github.com/tektoncd/pipeline)
   with the `alpha` feature gate enabled.
 - `ko` installed.
 - The `tekton-remote-resolution` namespace and `ResolutionRequest`
