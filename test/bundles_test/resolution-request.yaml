@@ -3,7 +3,7 @@ apiVersion: resolution.tekton.dev/v1alpha1
 metadata:
   name: bundle-resolution-request
   labels:
-    resolution.tekton.dev/type: bundle
+    resolution.tekton.dev/type: bundles
 spec:
   params:
     serviceAccount: default

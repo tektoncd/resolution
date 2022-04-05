@@ -52,9 +52,15 @@ type Reconciler struct {
 
 var _ reconciler.LeaderAware = &Reconciler{}
 
-// TODO(sbwsg): This should be configurable via ConfigMap. It differs
-// from the core ResolutionRequest reconciler's timeout mostly for testing at this
-// point.
+// defaultMaximumResolutionDuration is the maximum amount of time
+// resolution may take.
+
+// TODO(sbwsg): This should be configurable via ConfigMap so that each
+// resolver can have their own timeout duration for requests.
+// A global timeout for requests is also maintained in the core
+// ResolutionRequest reconciler so that requests with an invalid
+// resolver type or where the resolver malfunctions are still put into a
+// failed state after some time.
 const defaultMaximumResolutionDuration = 30 * time.Second
 
 // Reconcile receives the string key of a ResolutionRequest object, looks
@@ -83,9 +89,6 @@ func (r *Reconciler) Reconcile(ctx context.Context, key string) error {
 	// that the request originates from.
 	ctx = resolutioncommon.InjectRequestNamespace(ctx, namespace)
 
-	ctx, cancelFn := context.WithTimeout(ctx, defaultMaximumResolutionDuration)
-	defer cancelFn()
-
 	return r.resolve(ctx, key, rr)
 }
 
@@ -93,8 +96,14 @@ func (r *Reconciler) resolve(ctx context.Context, key string, rr *v1alpha1.Resol
 	errChan := make(chan error)
 	resourceChan := make(chan ResolvedResource)
 
+	// A new context is created for resolution so that timeouts can
+	// be enforced without affecting other uses of ctx (e.g. sending
+	// Updates to ResolutionRequest objects).
+	resolutionCtx, cancelFn := context.WithTimeout(ctx, defaultMaximumResolutionDuration)
+	defer cancelFn()
+
 	go func() {
-		validationError := r.resolver.ValidateParams(ctx, rr.Spec.Parameters)
+		validationError := r.resolver.ValidateParams(resolutionCtx, rr.Spec.Parameters)
 		if validationError != nil {
 			errChan <- &resolutioncommon.ErrorInvalidRequest{
 				ResolutionRequestKey: key,
@@ -102,10 +111,10 @@ func (r *Reconciler) resolve(ctx context.Context, key string, rr *v1alpha1.Resol
 			}
 			return
 		}
-		resource, resolveErr := r.resolver.Resolve(ctx, rr.Spec.Parameters)
+		resource, resolveErr := r.resolver.Resolve(resolutionCtx, rr.Spec.Parameters)
 		if resolveErr != nil {
 			errChan <- &resolutioncommon.ErrorGettingResource{
-				ResolverName: r.resolver.GetName(ctx),
+				ResolverName: r.resolver.GetName(resolutionCtx),
 				Key:          key,
 				Original:     resolveErr,
 			}
@@ -119,8 +128,8 @@ func (r *Reconciler) resolve(ctx context.Context, key string, rr *v1alpha1.Resol
 		if err != nil {
 			return r.OnError(ctx, rr, err)
 		}
-	case <-ctx.Done():
-		if err := ctx.Err(); err != nil {
+	case <-resolutionCtx.Done():
+		if err := resolutionCtx.Err(); err != nil {
 			return r.OnError(ctx, rr, err)
 		}
 	case resource := <-resourceChan:

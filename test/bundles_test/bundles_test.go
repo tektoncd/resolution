@@ -46,14 +46,15 @@ const waitInterval = time.Second
 // successful resolution of the test's bundle request.
 const waitTimeout = 20 * time.Second
 
-func TestBundleSmoke(t *testing.T) {
+// TestBundlesSmoke creates a resolution request for a bundle and checks
+// that it succeeds.
+func TestBundlesSmoke(t *testing.T) {
 	ctx := context.Background()
 	configPath := knativetest.Flags.Kubeconfig
 	clusterName := knativetest.Flags.Cluster
 
 	requestYAML, err := os.ReadFile("./resolution-request.yaml")
 	if err != nil {
-		t.Log(os.Getwd())
 		t.Fatalf("unable to read resolution request yaml fixture: %v", err)
 	}
 
