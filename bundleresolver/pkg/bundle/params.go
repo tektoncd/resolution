@@ -34,6 +34,8 @@ const ParamName = "name"
 // image is.
 const ParamKind = "kind"
 
+const defaultServiceAccountName = "default"
+
 // OptionsFromParams parses the params from a resolution request and
 // converts them into options to pass as part of a bundle request.
 func OptionsFromParams(params map[string]string) (RequestOptions, error) {
@@ -41,7 +43,7 @@ func OptionsFromParams(params map[string]string) (RequestOptions, error) {
 
 	sa, ok := params[ParamServiceAccount]
 	if !ok {
-		return opts, fmt.Errorf("parameter %q required", ParamServiceAccount)
+		sa = defaultServiceAccountName
 	}
 
 	bundle, ok := params[ParamBundle]
