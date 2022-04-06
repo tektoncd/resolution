@@ -9,7 +9,7 @@ require (
 	github.com/google/go-containerregistry/pkg/authn/k8schain v0.0.0-20220328141311-efc62d802606
 	github.com/hashicorp/golang-lru v0.5.4
 	github.com/tektoncd/plumbing v0.0.0-20220304154415-13228ac1f4a4
-	go.uber.org/zap v1.19.1
+	go.uber.org/zap v1.21.0
 	k8s.io/api v0.23.5
 	k8s.io/apimachinery v0.23.5
 	k8s.io/client-go v0.23.5
