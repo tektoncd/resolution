@@ -4,4 +4,4 @@ metadata:
   name: simple-resolution-request
   namespace: tekton-resolution-smoke-test
   labels:
-    resolution.tekton.dev/type: myresolver
+    resolution.tekton.dev/type: demo

@@ -65,18 +65,18 @@ project. For this example we'll create a directory and initialize a new
 go module with a few subdirectories for our code:
 
 ```bash
-$ mkdir myresolver
+$ mkdir demoresolver
 
-$ cd myresolver
+$ cd demoresolver
 
-$ go mod init example.com/myresolver
+$ go mod init example.com/demoresolver
 
-$ mkdir -p cmd/myresolver
+$ mkdir -p cmd/demoresolver
 
 $ mkdir config
 ```
 
-The `cmd/myresolver` directory will contain code for the resolver and the
+The `cmd/demoresolver` directory will contain code for the resolver and the
 `config` directory will eventually contain a yaml file for deploying the
 resolver to Kubernetes.
 
@@ -88,7 +88,7 @@ Our resolver here is going to be extremely simple and doesn't need any
 flags or special environment variables, so we'll just initialize it with
 a little bit of boilerplate.
 
-Create `cmd/myresolver/main.go` with the following setup code:
+Create `cmd/demoresolver/main.go` with the following setup code:
 
 ```go
 package main
@@ -121,9 +121,9 @@ If you try to build the binary right now you'll receive the following
 error:
 
 ```bash
-$ go build -o /dev/null ./cmd/myresolver
+$ go build -o /dev/null ./cmd/demoresolver
 
-cmd/myresolver/main.go:11:78: cannot use &resolver{} (type *resolver) as
+cmd/demoresolver/main.go:11:78: cannot use &resolver{} (type *resolver) as
 type framework.Resolver in argument to framework.NewController:
         *resolver does not implement framework.Resolver (missing GetName method)
 ```
@@ -150,12 +150,12 @@ func (r *resolver) Initialize(context.Context) error {
 
 This method returns a string name that will be used to refer to this
 resolver. You'd see this name show up in places like logs. For this
-simple example we'll return `"myresolver"`:
+simple example we'll return `"Demo"`:
 
 ```go
 // GetName returns a string name to refer to this resolver by.
 func (r *resolver) GetName(context.Context) string {
-  return "myresolver"
+  return "Demo"
 }
 ```
 
@@ -170,14 +170,14 @@ only label we're interested in matching on is defined by
 // GetSelector returns a map of labels to match requests to this resolver.
 func (r *resolver) GetSelector(context.Context) map[string]string {
   return map[string]string{
-    common.LabelKeyResolverType: "myresolver",
+    common.LabelKeyResolverType: "demo",
   }
 }
 ```
 
 What this does is tell the resolver framework that any
 `ResolutionRequest` object with a label of
-`"resolution.tekton.dev/type": "myresolver"` should be routed to our
+`"resolution.tekton.dev/type": "demo"` should be routed to our
 example resolver.
 
 We'll also need to add another import for this package at the top:
@@ -281,17 +281,17 @@ The full configuration follows:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: myresolver
+  name: demoresolver
   namespace: tekton-remote-resolution
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: myresolver
+      app: demoresolver
   template:
     metadata:
       labels:
-        app: myresolver
+        app: demoresolver
     spec:
       affinity:
         podAntiAffinity:
@@ -299,13 +299,13 @@ spec:
           - podAffinityTerm:
               labelSelector:
                 matchLabels:
-                  app: myresolver
+                  app: demoresolver
               topologyKey: kubernetes.io/hostname
             weight: 100
       serviceAccountName: resolver
       containers:
       - name: controller
-        image: ko://example.com/myresolver/cmd/myresolver
+        image: ko://example.com/demoresolver/cmd/demoresolver
         resources:
           requests:
             cpu: 100m
@@ -336,7 +336,7 @@ spec:
             - all
 ```
 
-Phew, ok, put all that in a file at `config/myresolver-deployment.yaml`
+Phew, ok, put all that in a file at `config/demo-resolver-deployment.yaml`
 and you'll be ready to deploy your application to Kubernetes and see it
 work!
 
@@ -347,7 +347,7 @@ deploy to a Kubernetes cluster. We'll use `ko` to build and deploy the
 application:
 
 ```bash
-$ ko apply -f ./config/myresolver-deployment.yaml
+$ ko apply -f ./config/demo-resolver-deployment.yaml
 ```
 
 Assuming the resolver deployed successfully you should be able to see it
@@ -359,8 +359,7 @@ $ kubectl get deployments -n tekton-remote-resolution
 # And here's approximately what you should see when you run this command:
 NAME          READY   UP-TO-DATE   AVAILABLE   AGE
 controller    1/1     1            1           2d21h
-gitresolver   1/1     1            1           2d19h
-myresolver    1/1     1            1           91s
+demoresolver  1/1     1            1           91s
 webhook       1/1     1            1           2d21
 ```
 
@@ -374,7 +373,7 @@ kind: ResolutionRequest
 metadata:
   name: test-request
   labels:
-    resolution.tekton.dev/type: myresolver
+    resolution.tekton.dev/type: demo
 ```
 
 And submit this request with the following command:

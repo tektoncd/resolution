@@ -16,4 +16,4 @@ apiVersion: resolution.tekton.dev/v1alpha1
 metadata:
   name: test-resolver-template
   labels:
-    resolution.tekton.dev/type: myresolver
+    resolution.tekton.dev/type: demo
