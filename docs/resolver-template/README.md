@@ -16,7 +16,7 @@ running with your own preferred storage backend.
 
 To reuse the template, simply copy this entire subdirectory to a new
 directory. The entire program is defined in
-[`./cmd/myresolver/main.go`](./cmd/myresolver/main.go) and provides stub
+[`./cmd/demoresolver/main.go`](./cmd/demoresolver/main.go) and provides stub
 implementations of all the methods defined by the [`framework.Resolver`
 interface](../../pkg/resolver/framework/interface.go).
 
@@ -25,7 +25,7 @@ of your project. We don't need this in `tektoncd/resolution` because this
 submodule relies on the `go.mod` and `go.sum` defined at the root of the repo.
 
 After your go module is initialized and dependencies tidied, update
-`config/myresolver-deployment.yaml`. The `image` field of the container
+`config/demo-resolver-deployment.yaml`. The `image` field of the container
 will need to point to your new go module's name, with a `ko://` prefix.
 
 ## Deploying the Resolver
@@ -42,15 +42,15 @@ will need to point to your new go module's name, with a `ko://` prefix.
 
 ### Install
 
-1. Install the `"myresolver"` Resolver:
+1. Install the `"demo"` Resolver:
 
 ```bash
-$ ko apply -f ./config/myresolver-deployment.yaml
+$ ko apply -f ./config/demo-resolver-deployment.yaml
 ```
 
 ### Testing it out
 
-Try creating a `ResolutionRequest` targeting `"myresolver"` with no parameters:
+Try creating a `ResolutionRequest` targeting `"demo"` with no parameters:
 
 ```bash
 $ cat <<EOF > rrtest.yaml
@@ -59,7 +59,7 @@ kind: ResolutionRequest
 metadata:
   name: test-resolver-template
   labels:
-    resolution.tekton.dev/type: myresolver
+    resolution.tekton.dev/type: demo
 EOF
 
 $ kubectl apply -f ./rrtest.yaml

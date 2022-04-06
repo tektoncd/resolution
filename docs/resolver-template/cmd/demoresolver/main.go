@@ -37,13 +37,13 @@ func (r *resolver) Initialize(context.Context) error {
 
 // GetName returns a string name to refer to this resolver by.
 func (r *resolver) GetName(context.Context) string {
-	return "myresolver"
+	return "Demo"
 }
 
 // GetSelector returns a map of labels to match requests to this resolver.
 func (r *resolver) GetSelector(context.Context) map[string]string {
 	return map[string]string{
-		common.LabelKeyResolverType: "myresolver",
+		common.LabelKeyResolverType: "demo",
 	}
 }
 

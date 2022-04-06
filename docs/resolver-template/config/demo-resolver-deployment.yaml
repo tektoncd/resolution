@@ -14,17 +14,17 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: myresolver
+  name: demoresolver
   namespace: tekton-remote-resolution
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: myresolver
+      app: demoresolver
   template:
     metadata:
       labels:
-        app: myresolver
+        app: demoresolver
     spec:
       affinity:
         podAntiAffinity:
@@ -32,13 +32,13 @@ spec:
           - podAffinityTerm:
               labelSelector:
                 matchLabels:
-                  app: myresolver
+                  app: demoresolver
               topologyKey: kubernetes.io/hostname
             weight: 100
       serviceAccountName: resolver
       containers:
       - name: controller
-        image: ko://github.com/tektoncd/resolution/docs/resolver-template/cmd/myresolver
+        image: ko://github.com/tektoncd/resolution/docs/resolver-template/cmd/demoresolver
         resources:
           requests:
             cpu: 100m
