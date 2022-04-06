@@ -6,8 +6,8 @@ edge. Breakages to the API, types, libraries and resolvers are unavoidable
 at this stage.**
 
 Pluggable resolution for Tekton resources (like `Tasks` and
-`Pipelines`). Store and utilize Tekton resources from git,
-from oci registries, or from anywhere else.
+`Pipelines`). Store and utilize Tekton resources from the git,
+from oci registries, from the tekton hub, or from anywhere else.
 
 Tekton Resolution is aiming for the following near-term goals:
 
