@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"io"
 	"strings"
+	"time"
 
 	"github.com/go-git/go-billy/v5/memfs"
 	git "github.com/go-git/go-git/v5"
@@ -152,6 +153,29 @@ func (r *Resolver) Resolve(_ context.Context, params map[string]string) (framewo
 		Commit:  commit,
 		Content: buf.Bytes(),
 	}, nil
+}
+
+var _ framework.ConfigWatcher = &Resolver{}
+
+// GetConfigName returns the name of the git resolver's configmap.
+func (r *Resolver) GetConfigName(context.Context) string {
+	return "git-resolver-config"
+}
+
+var _ framework.TimedResolution = &Resolver{}
+
+// GetResolutionTimeout returns a time.Duration for the amount of time a
+// single git fetch may take. This can be configured with the
+// fetch-timeout field in the git-resolver-config configmap.
+func (r *Resolver) GetResolutionTimeout(ctx context.Context, defaultTimeout time.Duration) time.Duration {
+	conf := framework.GetResolverConfigFromContext(ctx)
+	if timeoutString, ok := conf[ConfigFieldTimeout]; ok {
+		timeout, err := time.ParseDuration(timeoutString)
+		if err == nil {
+			return timeout
+		}
+	}
+	return defaultTimeout
 }
 
 // ResolvedGitResource implements framework.ResolvedResource and returns

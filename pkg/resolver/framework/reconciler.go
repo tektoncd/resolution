@@ -32,6 +32,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/cache"
+	"k8s.io/utils/clock"
 	"knative.dev/pkg/controller"
 	"knative.dev/pkg/logging"
 	"knative.dev/pkg/reconciler"
@@ -44,10 +45,16 @@ type Reconciler struct {
 	// Implements reconciler.LeaderAware
 	reconciler.LeaderAwareFuncs
 
+	// Clock is used by the reconciler to track the passage of time
+	// and can be overridden for tests.
+	Clock clock.PassiveClock
+
 	resolver                   Resolver
 	kubeClientSet              kubernetes.Interface
 	resolutionRequestLister    rrv1alpha1.ResolutionRequestLister
 	resolutionRequestClientSet rrclient.Interface
+
+	configStore *ConfigStore
 }
 
 var _ reconciler.LeaderAware = &Reconciler{}
@@ -55,13 +62,10 @@ var _ reconciler.LeaderAware = &Reconciler{}
 // defaultMaximumResolutionDuration is the maximum amount of time
 // resolution may take.
 
-// TODO(sbwsg): This should be configurable via ConfigMap so that each
-// resolver can have their own timeout duration for requests.
-// A global timeout for requests is also maintained in the core
-// ResolutionRequest reconciler so that requests with an invalid
-// resolver type or where the resolver malfunctions are still put into a
-// failed state after some time.
-const defaultMaximumResolutionDuration = 30 * time.Second
+// defaultMaximumResolutionDuration is the max time that a call to
+// Resolve() may take. It can be overridden by a resolver implementing
+// the framework.TimedResolution interface.
+const defaultMaximumResolutionDuration = time.Minute
 
 // Reconcile receives the string key of a ResolutionRequest object, looks
 // it up, checks it for common errors, and then delegates
@@ -85,9 +89,13 @@ func (r *Reconciler) Reconcile(ctx context.Context, key string) error {
 		return nil
 	}
 
-	// Inject request-scoped information into the context, such as the namespace
-	// that the request originates from.
+	// Inject request-scoped information into the context, such as
+	// the namespace that the request originates from and the
+	// configuration from the configmap this resolver is watching.
 	ctx = resolutioncommon.InjectRequestNamespace(ctx, namespace)
+	if r.configStore != nil {
+		ctx = r.configStore.ToContext(ctx)
+	}
 
 	return r.resolve(ctx, key, rr)
 }
@@ -96,10 +104,15 @@ func (r *Reconciler) resolve(ctx context.Context, key string, rr *v1alpha1.Resol
 	errChan := make(chan error)
 	resourceChan := make(chan ResolvedResource)
 
+	timeoutDuration := defaultMaximumResolutionDuration
+	if timed, ok := r.resolver.(TimedResolution); ok {
+		timeoutDuration = timed.GetResolutionTimeout(ctx, defaultMaximumResolutionDuration)
+	}
+
 	// A new context is created for resolution so that timeouts can
 	// be enforced without affecting other uses of ctx (e.g. sending
 	// Updates to ResolutionRequest objects).
-	resolutionCtx, cancelFn := context.WithTimeout(ctx, defaultMaximumResolutionDuration)
+	resolutionCtx, cancelFn := context.WithTimeout(ctx, timeoutDuration)
 	defer cancelFn()
 
 	go func() {

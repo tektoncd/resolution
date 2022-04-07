@@ -11,6 +11,11 @@ For a developer getting started with writing a new Resolver, see
 [how-to-write-a-resolver.md](./how-to-write-a-resolver.md) and the
 accompanying [resolver-template](./resolver-template).
 
+## Resolver Reference: The interfaces and methods to implement
+
+For a table of the interfaces and methods a resolver must implement
+along with those that are optional, see [resolver-reference.md](./resolver-reference.md).
+
 ---
 
 Except as otherwise noted, the content of this page is licensed under the

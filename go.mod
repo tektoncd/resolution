@@ -15,6 +15,7 @@ require (
 	k8s.io/client-go v0.23.5
 	k8s.io/code-generator v0.23.5
 	k8s.io/kube-openapi v0.0.0-20220124234850-424119656bbf
+	k8s.io/utils v0.0.0-20220210201930-3a6ce19ff2f9
 	knative.dev/hack v0.0.0-20220328133751-f06773764ce3
 	knative.dev/pkg v0.0.0-20220329144915-0a1ec2e0d46c
 )
@@ -51,6 +52,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sts v1.15.0 // indirect
 	github.com/aws/smithy-go v1.11.0 // indirect
 	github.com/awslabs/amazon-ecr-credential-helper/ecr-login v0.0.0-20220228164355-396b2034c795 // indirect
+	github.com/benbjohnson/clock v1.1.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/blang/semver/v4 v4.0.0 // indirect
 	github.com/blendle/zapdriver v1.3.1 // indirect
@@ -138,7 +140,6 @@ require (
 	k8s.io/apiextensions-apiserver v0.23.4 // indirect
 	k8s.io/gengo v0.0.0-20220307231824-4627b89bbf1b // indirect
 	k8s.io/klog/v2 v2.60.1-0.20220317184644-43cc75f9ae89 // indirect
-	k8s.io/utils v0.0.0-20220210201930-3a6ce19ff2f9 // indirect
 	sigs.k8s.io/json v0.0.0-20211208200746-9f7c6b3444d2 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.2.1 // indirect
 	sigs.k8s.io/yaml v1.3.0 // indirect
