@@ -3,6 +3,10 @@
 This directory contains a working Resolver based on the instructions
 from the [developer howto in the docs](../how-to-write-a-resolver.md).
 
+## Resolver Type
+
+This Resolver responds to type `demo`.
+
 ## Parameters
 
 | Name   | Desccription                 | Example Value               |
@@ -48,7 +52,7 @@ will need to point to your new go module's name, with a `ko://` prefix.
 $ ko apply -f ./config/demo-resolver-deployment.yaml
 ```
 
-### Testing it out
+### Testing
 
 Try creating a `ResolutionRequest` targeting `"demo"` with no parameters:
 
@@ -70,6 +74,20 @@ $ kubectl get resolutionrequest -w test-resolver-template
 You should shortly see the `ResolutionRequest` succeed and the content of
 a hello-world `Pipeline` base64-encoded in the object's `status.data`
 field.
+
+### Example PipelineRun
+
+Here's an example PipelineRun that uses the hard-coded demo Pipeline:
+
+```yaml
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: resolver-demo
+spec:
+  pipelineRef:
+    resolver: demo
+```
 
 ## What's Supported?
 

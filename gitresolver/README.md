@@ -1,5 +1,9 @@
 # Simple Git Resolver
 
+## Resolver Type
+
+This Resolver responds to type `git`.
+
 ## Parameters
 
 | Param Name | Description                                                                  | Example Value                                |
@@ -27,7 +31,7 @@
 $ ko apply -f ./gitresolver/config
 ```
 
-### Testing it out
+### Testing
 
 Try creating a `ResolutionRequest` for a file in git:
 
@@ -53,6 +57,31 @@ $ kubectl get resolutionrequest -w fetch-catalog-task
 You should shortly see the `ResolutionRequest` succeed and the content of
 the `golang-build.yaml` file base64-encoded in the object's `status.data`
 field.
+
+### Example PipelineRun
+
+Here's an example PipelineRun that pulls in a simple pipeline from a fork
+of the Tekton Catalog:
+
+```yaml
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: git-demo
+spec:
+  pipelineRef:
+    resolver: git
+    resource:
+    - name: url
+      value: https://github.com/sbwsg/catalog.git
+    - name: branch
+      value: main
+    - name: path
+      value: pipeline/simple/0.1/simple.yaml
+  params:
+  - name: name
+    value: Ranni
+```
 
 ## What's Supported?
 

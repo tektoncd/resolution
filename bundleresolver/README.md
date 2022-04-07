@@ -1,5 +1,9 @@
 # Bundles Resolver
 
+## Resolver Type
+
+This Resolver responds to type `bundle`.
+
 ## Parameters
 
 | Param Name       | Description                                                                   | Example Value                                              |
@@ -27,7 +31,7 @@
 $ ko apply -f ./bundleresolver/config
 ```
 
-### Testing it out
+### Testing
 
 Try creating a `ResolutionRequest` for a bundle:
 
@@ -55,6 +59,33 @@ $ kubectl get resolutionrequest -w fetch-catalog-task
 You should shortly see the `ResolutionRequest` succeed and the content of
 the `golang-build.yaml` file base64-encoded in the object's `status.data`
 field.
+
+### Example PipelineRun
+
+Unfortunately the Tekton Catalog does not publish pipelines at the
+moment. Here's an example PipelineRun that talks to a private registry
+but won't work unless you tweak the `bundle` field to point to a
+registry with a pipeline in it:
+
+```yaml
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: bundle-demo
+spec:
+  pipelineRef:
+    resolver: bundles
+    resource:
+    - name: bundle
+      value: 10.96.190.208:5000/simple/pipeline:latest
+    - name: name
+      value: hello-pipeline
+    - name: kind
+      value: pipeline
+  params:
+  - name: username
+    value: "tekton pipelines"
+```
 
 ---
 
