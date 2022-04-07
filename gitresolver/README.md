@@ -31,37 +31,21 @@ This Resolver responds to type `git`.
 $ ko apply -f ./gitresolver/config
 ```
 
-### Testing
+## Configuration
 
-Try creating a `ResolutionRequest` for a file in git:
+This resolver uses a `ConfigMap` for its settings. See
+[`./config/git-resolver-config.yaml`](./config/git-resolver-config.yaml)
+for the name, namespace and defaults that the resolver ships with.
 
-```bash
-$ cat <<EOF > rrtest.yaml
-apiVersion: resolution.tekton.dev/v1alpha1
-kind: ResolutionRequest
-metadata:
-  name: fetch-catalog-task
-  labels:
-    resolution.tekton.dev/type: git
-spec:
-  params:
-    url: https://github.com/tektoncd/catalog.git
-    path: /task/golang-build/0.3/golang-build.yaml
-EOF
+### Options
 
-$ kubectl apply -f ./rrtest.yaml
+| Option Name | Description | Example Values |
+|-------------|-------------|---------------|
+| `fetch-timeout` | The maximum time any single git resolution may take. **Note**: a global maximum timeout of 1 minute is currently enforced on _all_ resolution requests. | `1m`, `2s`, `700ms` |
 
-$ kubectl get resolutionrequest -w fetch-catalog-task
-```
+## Examples
 
-You should shortly see the `ResolutionRequest` succeed and the content of
-the `golang-build.yaml` file base64-encoded in the object's `status.data`
-field.
-
-### Example PipelineRun
-
-Here's an example PipelineRun that pulls in a simple pipeline from a fork
-of the Tekton Catalog:
+### `PipelineRun`
 
 ```yaml
 apiVersion: tekton.dev/v1beta1
@@ -83,13 +67,30 @@ spec:
     value: Ranni
 ```
 
+### `ResolutionRequest`
+
+```bash
+$ cat <<EOF > rrtest.yaml
+apiVersion: resolution.tekton.dev/v1alpha1
+kind: ResolutionRequest
+metadata:
+  name: fetch-catalog-task
+  labels:
+    resolution.tekton.dev/type: git
+spec:
+  params:
+    url: https://github.com/tektoncd/catalog.git
+    path: /task/golang-build/0.3/golang-build.yaml
+EOF
+
+$ kubectl apply -f ./rrtest.yaml
+
+$ kubectl get resolutionrequest -w fetch-catalog-task
+```
+
 ## What's Supported?
 
 - At the moment the git resolver can only access public repositories.
-- The git fetch must complete within 30 seconds. The `ResolutionRequest`
-  object will be automatically failed after 60 seconds. Both of these
-  timeouts need to be exposed for operator control via ConfigMap or
-  similar but at the moment are just hard-coded.
 
 ---
 

@@ -19,6 +19,7 @@ package resolutionrequest
 import (
 	"context"
 
+	"k8s.io/utils/clock"
 	"knative.dev/pkg/configmap"
 	"knative.dev/pkg/controller"
 
@@ -26,14 +27,18 @@ import (
 	resolutionrequestreconciler "github.com/tektoncd/resolution/pkg/client/injection/reconciler/resolution/v1alpha1/resolutionrequest"
 )
 
-// NewController returns a knative controller for processing
+// NewController returns a func that returns a knative controller for processing
 // ResolutionRequest objects.
-func NewController(ctx context.Context, cmw configmap.Watcher) *controller.Impl {
-	r := &Reconciler{}
-	impl := resolutionrequestreconciler.NewImpl(ctx, r)
+func NewController(clock clock.PassiveClock) func(ctx context.Context, cmw configmap.Watcher) *controller.Impl {
+	return func(ctx context.Context, cmw configmap.Watcher) *controller.Impl {
+		r := &Reconciler{
+			clock: clock,
+		}
+		impl := resolutionrequestreconciler.NewImpl(ctx, r)
 
-	reqinformer := resolutionrequestinformer.Get(ctx)
-	reqinformer.Informer().AddEventHandler(controller.HandleAll(impl.Enqueue))
+		reqinformer := resolutionrequestinformer.Get(ctx)
+		reqinformer.Informer().AddEventHandler(controller.HandleAll(impl.Enqueue))
 
-	return impl
+		return impl
+	}
 }

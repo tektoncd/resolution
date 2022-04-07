@@ -24,6 +24,7 @@ import (
 	"github.com/tektoncd/resolution/pkg/apis/resolution/v1alpha1"
 	rrreconciler "github.com/tektoncd/resolution/pkg/client/injection/reconciler/resolution/v1alpha1/resolutionrequest"
 	resolutioncommon "github.com/tektoncd/resolution/pkg/common"
+	"k8s.io/utils/clock"
 	"knative.dev/pkg/apis"
 	"knative.dev/pkg/controller"
 	"knative.dev/pkg/reconciler"
@@ -31,11 +32,14 @@ import (
 
 // Reconciler is a knative reconciler for processing ResolutionRequest
 // objects
-type Reconciler struct{}
+type Reconciler struct {
+	clock clock.PassiveClock
+}
 
 var _ rrreconciler.Interface = (*Reconciler)(nil)
 
-// TODO(sbwsg): This should be exposed via ConfigMap.
+// TODO(sbwsg): This should be exposed via ConfigMap using a config
+// store similarly to Tekton Pipelines'.
 const defaultMaximumResolutionDuration = 1 * time.Minute
 
 // ReconcileKind processes updates to ResolutionRequests, sets status

@@ -18,11 +18,12 @@ package main
 
 import (
 	"github.com/tektoncd/resolution/pkg/reconciler/resolutionrequest"
+	"k8s.io/utils/clock"
 	"knative.dev/pkg/injection/sharedmain"
 )
 
 func main() {
 	sharedmain.Main("controller",
-		resolutionrequest.NewController,
+		resolutionrequest.NewController(clock.RealClock{}),
 	)
 }

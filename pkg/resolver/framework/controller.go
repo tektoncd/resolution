@@ -29,6 +29,7 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/tools/cache"
+	"k8s.io/utils/clock"
 	kubeclient "knative.dev/pkg/client/injection/kube/client"
 	"knative.dev/pkg/configmap"
 	"knative.dev/pkg/controller"
@@ -36,10 +37,15 @@ import (
 	"knative.dev/pkg/reconciler"
 )
 
+// ReconcilerModifier is a func that can access and modify a reconciler
+// in the moments before a resolver is started. It allows for
+// things like injecting a test clock.
+type ReconcilerModifier = func(reconciler *Reconciler)
+
 // NewController returns a knative controller for a Tekton Resolver.
 // This sets up a lot of the boilerplate that individual resolvers
 // shouldn't need to be concerned with since it's common to all of them.
-func NewController(ctx context.Context, resolver Resolver) func(context.Context, configmap.Watcher) *controller.Impl {
+func NewController(ctx context.Context, resolver Resolver, modifiers ...ReconcilerModifier) func(context.Context, configmap.Watcher) *controller.Impl {
 	if err := validateResolver(ctx, resolver); err != nil {
 		panic(err.Error())
 	}
@@ -61,10 +67,14 @@ func NewController(ctx context.Context, resolver Resolver) func(context.Context,
 			resolver:                   resolver,
 		}
 
+		watchConfigChanges(ctx, r, cmw)
+
 		// TODO(sbwsg): Do better sanitize.
 		resolverName := resolver.GetName(ctx)
 		resolverName = strings.ReplaceAll(resolverName, "/", "")
 		resolverName = strings.ReplaceAll(resolverName, " ", "")
+
+		applyModifiersAndDefaults(ctx, r, modifiers)
 
 		impl := controller.NewContext(ctx, r, controller.ControllerOptions{
 			WorkQueueName: "TektonResolverFramework." + resolverName,
@@ -145,4 +155,41 @@ func validateResolver(ctx context.Context, r Resolver) error {
 		return ErrorMissingTypeSelector
 	}
 	return nil
+}
+
+// watchConfigChanges binds a framework.Resolver to updates on its
+// configmap, using knative's configmap helpers. This is only done if
+// the resolver implements the framework.ConfigWatcher interface.
+func watchConfigChanges(ctx context.Context, reconciler *Reconciler, cmw configmap.Watcher) {
+	if configWatcher, ok := reconciler.resolver.(ConfigWatcher); ok {
+		logger := logging.FromContext(ctx)
+		resolverConfigName := configWatcher.GetConfigName(ctx)
+		if resolverConfigName == "" {
+			panic("resolver returned empty config name")
+		}
+		reconciler.configStore = &ConfigStore{
+			resolverConfigName: resolverConfigName,
+			untyped: configmap.NewUntypedStore(
+				"resolver-config",
+				logger,
+				configmap.Constructors{
+					resolverConfigName: DataFromConfigMap,
+				},
+			),
+		}
+		reconciler.configStore.untyped.WatchConfigs(cmw)
+	}
+}
+
+// applyModifiersAndDefaults applies the given modifiers to
+// a reconciler and, after doing so, sets any default values for things
+// that weren't set by a modifier.
+func applyModifiersAndDefaults(ctx context.Context, r *Reconciler, modifiers []ReconcilerModifier) {
+	for _, mod := range modifiers {
+		mod(r)
+	}
+
+	if r.Clock == nil {
+		r.Clock = clock.RealClock{}
+	}
 }
