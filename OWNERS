@@ -1,6 +1,9 @@
 approvers:
 - dibyom
 - sbwsg
+- vdemeester
+- abayer
+- chitrangpatel
 
 # Reviewers is the set of people that will be automatically assigned when a PR is opened.
 # This is purposely a subset of approvers so that certain users can approve PRs to be
@@ -8,3 +11,6 @@ approvers:
 reviewers:
 - dibyom
 - sbwsg
+- vdemeester
+- abayer
+- chitrangpatel
