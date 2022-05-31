@@ -15,69 +15,17 @@ package main
 
 import (
 	"context"
-	"time"
 
-	"github.com/google/go-containerregistry/pkg/authn/k8schain"
 	"github.com/tektoncd/resolution/bundleresolver/pkg/bundle"
-	"github.com/tektoncd/resolution/pkg/common"
+	"github.com/tektoncd/resolution/pkg/apis/resolution/v1alpha1"
 	"github.com/tektoncd/resolution/pkg/resolver/framework"
-	"k8s.io/client-go/kubernetes"
-	kubeclient "knative.dev/pkg/client/injection/kube/client"
+	filteredinformerfactory "knative.dev/pkg/client/injection/kube/informers/factory/filtered"
 	"knative.dev/pkg/injection/sharedmain"
 )
 
-// TODO(sbwsg): This should be exposed as a configurable option for
-// admins (e.g. via ConfigMap)
-const timeoutDuration = time.Minute
-
 func main() {
-	sharedmain.Main("controller",
-		framework.NewController(context.Background(), &resolver{}),
+	ctx := filteredinformerfactory.WithSelectors(context.Background(), v1alpha1.ManagedByLabelKey)
+	sharedmain.MainWithContext(ctx, "controller",
+		framework.NewController(ctx, &bundle.Resolver{}),
 	)
-}
-
-type resolver struct {
-	kubeClientSet kubernetes.Interface
-}
-
-// Initialize sets up any dependencies needed by the resolver. None atm.
-func (r *resolver) Initialize(ctx context.Context) error {
-	r.kubeClientSet = kubeclient.Get(ctx)
-	return nil
-}
-
-// GetName returns a string name to refer to this resolver by.
-func (r *resolver) GetName(context.Context) string {
-	return "bundleresolver"
-}
-
-// GetSelector returns a map of labels to match requests to this resolver.
-func (r *resolver) GetSelector(context.Context) map[string]string {
-	return map[string]string{
-		common.LabelKeyResolverType: "bundles",
-	}
-}
-
-// ValidateParams ensures parameters from a request are as expected.
-func (r *resolver) ValidateParams(ctx context.Context, params map[string]string) error {
-	if _, err := bundle.OptionsFromParams(params); err != nil {
-		return err
-	}
-	return nil
-}
-
-// Resolve uses the given params to resolve the requested file or resource.
-func (r *resolver) Resolve(ctx context.Context, params map[string]string) (framework.ResolvedResource, error) {
-	opts, err := bundle.OptionsFromParams(params)
-	if err != nil {
-		return nil, err
-	}
-	namespace := common.RequestNamespace(ctx)
-	kc, err := k8schain.New(ctx, r.kubeClientSet, k8schain.Options{
-		Namespace:          namespace,
-		ServiceAccountName: opts.ServiceAccount,
-	})
-	ctx, cancelFn := context.WithTimeout(ctx, timeoutDuration)
-	defer cancelFn()
-	return bundle.GetEntry(ctx, kc, opts)
 }

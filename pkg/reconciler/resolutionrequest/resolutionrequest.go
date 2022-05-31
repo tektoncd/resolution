@@ -61,8 +61,7 @@ func (r *Reconciler) ReconcileKind(ctx context.Context, rr *v1alpha1.ResolutionR
 	case rr.Status.Data != "":
 		rr.Status.MarkSucceeded()
 	case requestDuration(rr) > defaultMaximumResolutionDuration:
-		message := fmt.Sprintf("resolution took longer than global timeout of %s", defaultMaximumResolutionDuration)
-		rr.Status.MarkFailed(resolutioncommon.ReasonResolutionTimedOut, message)
+		rr.Status.MarkFailed(resolutioncommon.ReasonResolutionTimedOut, timeoutMessage())
 	default:
 		rr.Status.MarkInProgress(resolutioncommon.MessageWaitingForResolver)
 		return controller.NewRequeueAfter(defaultMaximumResolutionDuration - requestDuration(rr))
@@ -76,4 +75,8 @@ func (r *Reconciler) ReconcileKind(ctx context.Context, rr *v1alpha1.ResolutionR
 func requestDuration(rr *v1alpha1.ResolutionRequest) time.Duration {
 	creationTime := rr.ObjectMeta.CreationTimestamp.DeepCopy().Time.UTC()
 	return time.Now().UTC().Sub(creationTime)
+}
+
+func timeoutMessage() string {
+	return fmt.Sprintf("resolution took longer than global timeout of %s", defaultMaximumResolutionDuration)
 }

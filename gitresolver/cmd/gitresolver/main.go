@@ -17,15 +17,17 @@ limitations under the License.
 package main
 
 import (
-	"context"
-
 	"github.com/tektoncd/resolution/gitresolver/pkg/git"
+	"github.com/tektoncd/resolution/pkg/apis/resolution/v1alpha1"
 	"github.com/tektoncd/resolution/pkg/resolver/framework"
+	filteredinformerfactory "knative.dev/pkg/client/injection/kube/informers/factory/filtered"
 	"knative.dev/pkg/injection/sharedmain"
+	"knative.dev/pkg/signals"
 )
 
 func main() {
-	sharedmain.Main("controller",
-		framework.NewController(context.Background(), &git.Resolver{}),
+	ctx := filteredinformerfactory.WithSelectors(signals.NewContext(), v1alpha1.ManagedByLabelKey)
+	sharedmain.MainWithContext(ctx, "controller",
+		framework.NewController(ctx, &git.Resolver{}),
 	)
 }

@@ -17,14 +17,17 @@ import (
 	"context"
 	"errors"
 
+	"github.com/tektoncd/resolution/pkg/apis/resolution/v1alpha1"
 	"github.com/tektoncd/resolution/pkg/common"
 	"github.com/tektoncd/resolution/pkg/resolver/framework"
+	filteredinformerfactory "knative.dev/pkg/client/injection/kube/informers/factory/filtered"
 	"knative.dev/pkg/injection/sharedmain"
 )
 
 func main() {
-	sharedmain.Main("controller",
-		framework.NewController(context.Background(), &resolver{}),
+	ctx := filteredinformerfactory.WithSelectors(context.Background(), v1alpha1.ManagedByLabelKey)
+	sharedmain.MainWithContext(ctx, "controller",
+		framework.NewController(ctx, &resolver{}),
 	)
 }
 
