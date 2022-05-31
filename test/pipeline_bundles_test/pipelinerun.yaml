@@ -15,7 +15,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
-  name: run-hello-pipeline
+  name: {{prName}}
 spec:
   pipelineRef:
     resolver: bundles

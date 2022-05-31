@@ -94,7 +94,7 @@ func (r *Resolver) ValidateParams(_ context.Context, params map[string]string) e
 	}
 
 	// TODO(sbwsg): validate repo url is well-formed, git:// or https://
-	// TODO(sbwsg): validate path is valid relative path
+	// TODO(sbwsg): validate pathInRepo is valid relative pathInRepo
 
 	return nil
 }

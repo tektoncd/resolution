@@ -19,8 +19,8 @@ package git
 // URLParam is the git repo url
 const URLParam string = "url"
 
-// PathParam is the path into the git repo where a file is located
-const PathParam string = "path"
+// PathParam is the pathInRepo into the git repo where a file is located
+const PathParam string = "pathInRepo"
 
 // CommitParam is the commit hash that a file should be fetched from
 const CommitParam string = "commit"
