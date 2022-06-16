@@ -6,6 +6,7 @@ Use resolver type `hub`.
 
 | Param Name       | Description                                                                   | Example Value                                              |
 |------------------|-------------------------------------------------------------------------------|------------------------------------------------------------|
+| `catalog`        | The catalog from where to pull the resource (Optional)                        | Default:  `Tekton`                                         |
 | `kind`           | Either `task` or `pipeline`                                                   | `task`                                                     |
 | `name`           | The name of the task or pipeline to fetch from the hub                        | `golang-build`                                             |
 | `version`        | Version of task or pipeline to pull in from hub. Wrap the number in quotes!   | `"0.5"`                                                    |
@@ -79,6 +80,8 @@ spec:
   pipelineRef:
     resolver: hub
     resource:
+    - name: catalog # optional
+      value: Tekton 
     - name: kind
       value: pipeline
     - name: name

@@ -14,10 +14,10 @@ limitations under the License.
 package hub
 
 // DefaultHubURL is de default url for the Tekton hub api
-const DefaultHubURL = "https://api.hub.tekton.dev/v1/resource/Tekton/%s/%s/%s/yaml"
+const DefaultHubURL = "https://api.hub.tekton.dev/v1/resource/%s/%s/%s/%s/yaml"
 
 // YamlEndpoint is the suffix for a private custom hub instance
-const YamlEndpoint = "v1/resource/Tekton/%s/%s/%s/yaml"
+const YamlEndpoint = "v1/resource/%s/%s/%s/%s/yaml"
 
 // ParamName is the parameter defining what the layer name in the bundle
 // image is.
@@ -30,3 +30,7 @@ const ParamKind = "kind"
 // ParamVersion is the parameter defining what the layer version in the bundle
 // image is.
 const ParamVersion = "version"
+
+// ParamCatalog is the parameter defining what the catalog in the bundle
+// image is.
+const ParamCatalog = "catalog"
