@@ -25,6 +25,12 @@ import (
 	"github.com/tektoncd/resolution/pkg/resolver/framework"
 )
 
+// LabelValueHubResolverType is the value to use for the
+// resolution.tekton.dev/type label on resource requests
+const LabelValueHubResolverType string = "hub"
+
+const defaultCatalog string = "Tekton"
+
 // Resolver implements a framework.Resolver that can fetch files from OCI bundles.
 type Resolver struct {
 	// HubURL is the URL for hub resolver
@@ -44,7 +50,7 @@ func (r *Resolver) GetName(context.Context) string {
 // GetSelector returns a map of labels to match requests to this resolver.
 func (r *Resolver) GetSelector(context.Context) map[string]string {
 	return map[string]string{
-		common.LabelKeyResolverType: "hub",
+		common.LabelKeyResolverType: LabelValueHubResolverType,
 	}
 }
 
@@ -74,8 +80,11 @@ type hubResponse struct {
 
 // Resolve uses the given params to resolve the requested file or resource.
 func (r *Resolver) Resolve(ctx context.Context, params map[string]string) (framework.ResolvedResource, error) {
+	if _, ok := params[ParamCatalog]; !ok {
+		params[ParamCatalog] = defaultCatalog
+	}
 
-	url := fmt.Sprintf(DefaultHubURL, params[ParamKind], params[ParamName], params[ParamVersion])
+	url := fmt.Sprintf(r.HubURL, params[ParamCatalog], params[ParamKind], params[ParamName], params[ParamVersion])
 	// #nosec G107 -- URL cannot be constant in this case.
 	resp, err := http.Get(url)
 	if err != nil {
@@ -91,22 +100,24 @@ func (r *Resolver) Resolve(ctx context.Context, params map[string]string) (frame
 	if err != nil {
 		return nil, fmt.Errorf("error unmarshalling json response: %w", err)
 	}
-	return &hubResolvedResource{
-		data: []byte(hr.Data.YAML),
+	return &ResolvedHubResource{
+		Content: []byte(hr.Data.YAML),
 	}, nil
 }
 
-// hubResolvedResource wraps the data we want to return to Pipelines
-type hubResolvedResource struct {
-	data []byte
+// ResolvedHubResource wraps the data we want to return to Pipelines
+type ResolvedHubResource struct {
+	Content []byte
 }
 
+var _ framework.ResolvedResource = &ResolvedHubResource{}
+
 // Data returns the bytes of our hard-coded Pipeline
-func (rr *hubResolvedResource) Data() []byte {
-	return rr.data
+func (rr *ResolvedHubResource) Data() []byte {
+	return rr.Content
 }
 
 // Annotations returns any metadata needed alongside the data. None atm.
-func (*hubResolvedResource) Annotations() map[string]string {
+func (*ResolvedHubResource) Annotations() map[string]string {
 	return nil
 }
