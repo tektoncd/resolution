@@ -37,6 +37,9 @@ ko apply -f ./gitresolver/config
 header "Deploying Bundle Resolver"
 ko apply -f ./bundleresolver/config
 
+header "Deploying Hub Resolver"
+ko apply -f ./hubresolver/config
+
 header "Deploying Resolver Template"
 ko apply -f ./docs/resolver-template/config
 
@@ -88,7 +91,7 @@ kill -15 ${KUBECTL_PORT_FORWARD_PID}
 
 header "Running e2e tests"
 # by default runs `go test -tags=e2e`
-go_test_e2e -timeout=2m ./test/... || failed=1
+go_test_e2e -timeout=3m ./test/... || failed=1
 
 (( failed )) && fail_test
 success

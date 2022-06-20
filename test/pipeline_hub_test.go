@@ -19,34 +19,22 @@
 package test
 
 import (
-	"bytes"
 	"os"
 	"testing"
+	"time"
 
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
-	"knative.dev/pkg/test/helpers"
 )
-
-// testBundleRefEnvVar is the name of an environment variable that's used to
-// pass the url of a bundle that can be pulled during the e2e test.
-const testBundleRefEnvVar = "TEST_BUNDLE_REF"
 
 // TestPipelineBundle executes a PipelineRun that relies on a Pipeline
 // from a Bundle stored in a registry.
-func TestPipelineBundle(t *testing.T) {
-	bundleRef := os.Getenv(testBundleRefEnvVar)
-	if bundleRef == "" {
-		t.Fatalf("test requires a bundle be made available via environment variable %q", testBundleRefEnvVar)
-	}
-
-	pipelineRunYAML, err := os.ReadFile("./pipeline_bundles_test/pipelinerun.yaml")
+func TestPipelineHub(t *testing.T) {
+	pipelineRunYAML, err := os.ReadFile("./pipeline_hub_test/pipelinerun.yaml")
 	if err != nil {
 		t.Fatalf("error reading pipelinerun yaml fixture: %v", err)
 	}
-	pipelineRunYAML = bytes.Replace(pipelineRunYAML, []byte("{{bundleRef}}"), []byte(bundleRef), 1)
-	pipelineRunYAML = bytes.Replace(pipelineRunYAML, []byte("{{prName}}"), []byte(helpers.ObjectNameForTest(t)), 1)
 
-	err = RunPipeline(pipelineRunYAML, t, waitInterval, waitTimeout)
+	err = RunPipeline(pipelineRunYAML, t, waitInterval, 60*time.Second)
 
 	if err != nil {
 		t.Fatalf("pipelinerun did not succeed: %v", err)
