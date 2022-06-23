@@ -1,0 +1,13 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: git-demo
+spec:
+  pipelineRef:
+    resolver: git
+    resource:
+    - name: path
+      value: pipeline/simple/0.1/simple.yaml
+  params:
+  - name: name
+    value: Ranni

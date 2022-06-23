@@ -14,9 +14,11 @@ limitations under the License.
 package bundle
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/google/go-containerregistry/pkg/name"
+	"github.com/tektoncd/resolution/pkg/resolver/framework"
 )
 
 // ParamServiceAccount is the parameter defining what service
@@ -34,16 +36,19 @@ const ParamName = "name"
 // image is.
 const ParamKind = "kind"
 
-const defaultServiceAccountName = "default"
-
 // OptionsFromParams parses the params from a resolution request and
 // converts them into options to pass as part of a bundle request.
-func OptionsFromParams(params map[string]string) (RequestOptions, error) {
+func OptionsFromParams(ctx context.Context, params map[string]string) (RequestOptions, error) {
 	opts := RequestOptions{}
+	conf := framework.GetResolverConfigFromContext(ctx)
 
 	sa, ok := params[ParamServiceAccount]
 	if !ok {
-		sa = defaultServiceAccountName
+		if saString, ok := conf[ConfigServiceAccount]; ok {
+			sa = saString
+		} else {
+			return opts, fmt.Errorf("default Service Account  was not set during installation of the bundle resolver")
+		}
 	}
 
 	bundle, ok := params[ParamBundle]
@@ -61,7 +66,11 @@ func OptionsFromParams(params map[string]string) (RequestOptions, error) {
 
 	kind, ok := params[ParamKind]
 	if !ok {
-		return opts, fmt.Errorf("paramater %q required", ParamKind)
+		if kindString, ok := conf[ConfigKind]; ok {
+			kind = kindString
+		} else {
+			return opts, fmt.Errorf("default resource Kind  was not set during installation of the bundle resolver")
+		}
 	}
 
 	opts.ServiceAccount = sa

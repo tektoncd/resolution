@@ -71,7 +71,6 @@ func (r *Resolver) GetSelector(_ context.Context) map[string]string {
 // valid for a resource request targeting the gitresolver.
 func (r *Resolver) ValidateParams(_ context.Context, params map[string]string) error {
 	required := []string{
-		URLParam,
 		PathParam,
 	}
 	missing := []string{}
@@ -101,11 +100,25 @@ func (r *Resolver) ValidateParams(_ context.Context, params map[string]string) e
 
 // Resolve performs the work of fetching a file from git given a map of
 // parameters.
-func (r *Resolver) Resolve(_ context.Context, params map[string]string) (framework.ResolvedResource, error) {
+func (r *Resolver) Resolve(ctx context.Context, params map[string]string) (framework.ResolvedResource, error) {
+	conf := framework.GetResolverConfigFromContext(ctx)
 	repo := params[URLParam]
+	if repo == "" {
+		if urlString, ok := conf[ConfigURL]; ok {
+			repo = urlString
+		} else {
+			return nil, fmt.Errorf("default Git Repo Url  was not set during installation of the git resolver")
+		}
+	}
 	commit := params[CommitParam]
 	branch := params[BranchParam]
+	if commit == "" && branch == "" {
+		if branchString, ok := conf[ConfigBranch]; ok {
+			branch = branchString
+		}
+	}
 	path := params[PathParam]
+
 	cloneOpts := &git.CloneOptions{
 		URL: repo,
 	}

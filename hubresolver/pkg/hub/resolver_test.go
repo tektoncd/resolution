@@ -29,6 +29,7 @@ func TestValidateParams(t *testing.T) {
 		ParamKind:    "task",
 		ParamName:    "foo",
 		ParamVersion: "bar",
+		ParamCatalog: "baz",
 	}
 	if err := resolver.ValidateParams(context.Background(), paramsWithTask); err != nil {
 		t.Fatalf("unexpected error validating params: %v", err)
@@ -38,6 +39,7 @@ func TestValidateParams(t *testing.T) {
 		ParamKind:    "pipeline",
 		ParamName:    "foo",
 		ParamVersion: "bar",
+		ParamCatalog: "baz",
 	}
 	if err := resolver.ValidateParams(context.Background(), paramsWithPipeline); err != nil {
 		t.Fatalf("unexpected error validating params: %v", err)
@@ -48,15 +50,6 @@ func TestValidateParamsMissing(t *testing.T) {
 	resolver := Resolver{}
 
 	var err error
-
-	paramsMissingKind := map[string]string{
-		ParamName:    "bar",
-		ParamVersion: "baz",
-	}
-	err = resolver.ValidateParams(context.Background(), paramsMissingKind)
-	if err == nil {
-		t.Fatalf("expected missing kind err")
-	}
 
 	paramsMissingName := map[string]string{
 		ParamKind:    "foo",
@@ -83,6 +76,7 @@ func TestValidateParamsConflictingKindName(t *testing.T) {
 		ParamKind:    "not-task",
 		ParamName:    "foo",
 		ParamVersion: "bar",
+		ParamCatalog: "baz",
 	}
 	err := resolver.ValidateParams(context.Background(), params)
 	if err == nil {
@@ -96,6 +90,7 @@ func TestResolve(t *testing.T) {
 		kind        string
 		imageName   string
 		version     string
+		catalog     string
 		input       string
 		expectedRes []byte
 		expectedErr error
@@ -105,6 +100,7 @@ func TestResolve(t *testing.T) {
 			kind:        "task",
 			imageName:   "foo",
 			version:     "baz",
+			catalog:     "tekton",
 			input:       `{"data":{"yaml":"some content"}}`,
 			expectedRes: []byte("some content"),
 		},
@@ -113,6 +109,7 @@ func TestResolve(t *testing.T) {
 			kind:        "task",
 			imageName:   "foo",
 			version:     "baz",
+			catalog:     "tekton",
 			input:       `{"name":"not-found","id":"aaaaaaaa","message":"resource not found","temporary":false,"timeout":false,"fault":false}`,
 			expectedRes: []byte(""),
 		},
@@ -121,6 +118,7 @@ func TestResolve(t *testing.T) {
 			kind:        "task",
 			imageName:   "foo",
 			version:     "baz",
+			catalog:     "tekton",
 			input:       `value`,
 			expectedErr: fmt.Errorf("error unmarshalling json response: invalid character 'v' looking for beginning of value"),
 		},
@@ -129,6 +127,7 @@ func TestResolve(t *testing.T) {
 			kind:        "task",
 			imageName:   "foo",
 			version:     "baz",
+			catalog:     "tekton",
 			expectedErr: fmt.Errorf("error unmarshalling json response: unexpected end of JSON input"),
 		},
 	}
@@ -145,6 +144,7 @@ func TestResolve(t *testing.T) {
 				ParamKind:    tc.kind,
 				ParamName:    tc.imageName,
 				ParamVersion: tc.version,
+				ParamCatalog: tc.catalog,
 			}
 
 			output, err := resolver.Resolve(context.Background(), params)
