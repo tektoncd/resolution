@@ -27,6 +27,10 @@ import (
 	"knative.dev/pkg/client/injection/kube/client"
 )
 
+// LabelValueBundleResolverType is the value to use for the
+// resolution.tekton.dev/type label on resource requests
+const LabelValueBundleResolverType string = "bundles"
+
 // TODO(sbwsg): This should be exposed as a configurable option for
 // admins (e.g. via ConfigMap)
 const timeoutDuration = time.Minute
@@ -47,16 +51,21 @@ func (r *Resolver) GetName(context.Context) string {
 	return "bundleresolver"
 }
 
+// GetConfigName returns the name of the bundle resolver's configmap.
+func (r *Resolver) GetConfigName(context.Context) string {
+	return "bundleresolver-config"
+}
+
 // GetSelector returns a map of labels to match requests to this Resolver.
 func (r *Resolver) GetSelector(context.Context) map[string]string {
 	return map[string]string{
-		common.LabelKeyResolverType: "bundles",
+		common.LabelKeyResolverType: LabelValueBundleResolverType,
 	}
 }
 
 // ValidateParams ensures parameters from a request are as expected.
 func (r *Resolver) ValidateParams(ctx context.Context, params map[string]string) error {
-	if _, err := OptionsFromParams(params); err != nil {
+	if _, err := OptionsFromParams(ctx, params); err != nil {
 		return err
 	}
 	return nil
@@ -64,7 +73,7 @@ func (r *Resolver) ValidateParams(ctx context.Context, params map[string]string)
 
 // Resolve uses the given params to resolve the requested file or resource.
 func (r *Resolver) Resolve(ctx context.Context, params map[string]string) (framework.ResolvedResource, error) {
-	opts, err := OptionsFromParams(params)
+	opts, err := OptionsFromParams(ctx, params)
 	if err != nil {
 		return nil, err
 	}

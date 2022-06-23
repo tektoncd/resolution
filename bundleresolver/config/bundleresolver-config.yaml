@@ -15,12 +15,10 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: git-resolver-config
+  name: bundleresolver-config
   namespace: tekton-remote-resolution
 data:
-  # The maximum amount of time a single git resolution may take.
-  fetch-timeout: "1m"
-  # The git url to fetch the remote resource from.
-  default-url: "https://github.com/tektoncd/catalog.git"
-  # The git branch to fetch the remote resource from.
-  default-branch: "main"
+  # the default service account name to use for bundle requests.
+  default-service-account: "default"
+  # The default layer kind in the bundle image.
+  default-kind: "task"

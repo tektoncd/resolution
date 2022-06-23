@@ -29,8 +29,6 @@ import (
 // resolution.tekton.dev/type label on resource requests
 const LabelValueHubResolverType string = "hub"
 
-const defaultCatalog string = "Tekton"
-
 // Resolver implements a framework.Resolver that can fetch files from OCI bundles.
 type Resolver struct {
 	// HubURL is the URL for hub resolver
@@ -47,6 +45,11 @@ func (r *Resolver) GetName(context.Context) string {
 	return "Hub"
 }
 
+// GetConfigName returns the name of the bundle resolver's configmap.
+func (r *Resolver) GetConfigName(context.Context) string {
+	return "hubresolver-config"
+}
+
 // GetSelector returns a map of labels to match requests to this resolver.
 func (r *Resolver) GetSelector(context.Context) map[string]string {
 	return map[string]string{
@@ -56,16 +59,16 @@ func (r *Resolver) GetSelector(context.Context) map[string]string {
 
 // ValidateParams ensures parameters from a request are as expected.
 func (r *Resolver) ValidateParams(ctx context.Context, params map[string]string) error {
-	if kind, ok := params[ParamKind]; !ok {
-		return errors.New("must include kind param")
-	} else if kind != "task" && kind != "pipeline" {
-		return errors.New("kind param must be task or pipeline")
-	}
 	if _, ok := params[ParamName]; !ok {
 		return errors.New("must include name param")
 	}
 	if _, ok := params[ParamVersion]; !ok {
 		return errors.New("must include version param")
+	}
+	if kind, ok := params[ParamKind]; ok {
+		if kind != "task" && kind != "pipeline" {
+			return errors.New("kind param must be task or pipeline")
+		}
 	}
 	return nil
 }
@@ -80,10 +83,28 @@ type hubResponse struct {
 
 // Resolve uses the given params to resolve the requested file or resource.
 func (r *Resolver) Resolve(ctx context.Context, params map[string]string) (framework.ResolvedResource, error) {
+	conf := framework.GetResolverConfigFromContext(ctx)
 	if _, ok := params[ParamCatalog]; !ok {
-		params[ParamCatalog] = defaultCatalog
+		if catalogString, ok := conf[ConfigCatalog]; ok {
+			params[ParamCatalog] = catalogString
+		} else {
+			return nil, fmt.Errorf("default catalog was not set during installation of the hub resolver")
+		}
 	}
 
+	kind, ok := params[ParamKind]
+	if !ok {
+		if kindString, ok := conf[ConfigKind]; ok {
+			kind = kindString
+		} else {
+			return nil, fmt.Errorf("default resource Kind was not set during installation of the hub resolver")
+		}
+	}
+	if kind != "task" && kind != "pipeline" {
+		return nil, fmt.Errorf("kind param must be task or pipeline")
+	}
+
+	params[ParamKind] = kind
 	url := fmt.Sprintf(r.HubURL, params[ParamCatalog], params[ParamKind], params[ParamName], params[ParamVersion])
 	// #nosec G107 -- URL cannot be constant in this case.
 	resp, err := http.Get(url)

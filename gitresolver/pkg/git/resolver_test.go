@@ -45,7 +45,6 @@ func TestValidateParams(t *testing.T) {
 	resolver := Resolver{}
 
 	paramsWithCommit := map[string]string{
-		URLParam:    "foo",
 		PathParam:   "bar",
 		CommitParam: "baz",
 	}
@@ -54,7 +53,6 @@ func TestValidateParams(t *testing.T) {
 	}
 
 	paramsWithBranch := map[string]string{
-		URLParam:    "foo",
 		PathParam:   "bar",
 		BranchParam: "baz",
 	}
@@ -67,15 +65,6 @@ func TestValidateParamsMissing(t *testing.T) {
 	resolver := Resolver{}
 
 	var err error
-
-	paramsMissingURL := map[string]string{
-		PathParam:   "bar",
-		CommitParam: "baz",
-	}
-	err = resolver.ValidateParams(context.Background(), paramsMissingURL)
-	if err == nil {
-		t.Fatalf("expected missing url err")
-	}
 
 	paramsMissingPath := map[string]string{
 		URLParam:    "foo",
@@ -210,7 +199,6 @@ func TestResolve(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			repoPath, commits := createTestRepo(t, tc.commits)
-
 			resolver := &Resolver{}
 
 			params := map[string]string{
@@ -227,7 +215,6 @@ func TestResolve(t *testing.T) {
 			} else if tc.specificCommit != "" {
 				params[CommitParam] = hex.EncodeToString([]byte(tc.specificCommit))
 			}
-
 			output, err := resolver.Resolve(context.Background(), params)
 			if tc.expectedErr != nil {
 				if err == nil {
