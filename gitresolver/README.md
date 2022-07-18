@@ -60,7 +60,7 @@ spec:
       value: https://github.com/sbwsg/catalog.git
     - name: branch
       value: main
-    - name: path
+    - name: pathInRepo
       value: pipeline/simple/0.1/simple.yaml
   params:
   - name: name
