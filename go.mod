@@ -12,7 +12,7 @@ require (
 	github.com/tektoncd/plumbing v0.0.0-20220304154415-13228ac1f4a4
 	go.uber.org/zap v1.21.0
 	k8s.io/api v0.23.5
-	k8s.io/apimachinery v0.23.5
+	k8s.io/apimachinery v0.23.9
 	k8s.io/client-go v0.23.5
 	k8s.io/code-generator v0.23.5
 	k8s.io/kube-openapi v0.0.0-20220124234850-424119656bbf
