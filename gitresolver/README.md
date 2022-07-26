@@ -58,7 +58,7 @@ spec:
     resource:
     - name: url
       value: https://github.com/sbwsg/catalog.git
-    - name: branch
+    - name: revision
       value: main
     - name: pathInRepo
       value: pipeline/simple/0.1/simple.yaml

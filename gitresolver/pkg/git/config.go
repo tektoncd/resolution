@@ -8,6 +8,6 @@ const ConfigFieldTimeout = "fetch-timeout"
 // the git url to fetch the remote resource from.
 const ConfigURL = "default-url"
 
-// ConfigBranch is the configuration field name for controlling
-// the branch name to fetch the remote resource from.
-const ConfigBranch = "default-branch"
+// ConfigRevision is the configuration field name for controlling
+// the revision to fetch the remote resource from.
+const ConfigRevision = "default-revision"
