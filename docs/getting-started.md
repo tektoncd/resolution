@@ -153,7 +153,7 @@ spec:
     resource:
     - name: url
       value: ${REPO_URL}
-    - name: branch
+    - name: revision
       value: add-a-simple-pipeline
     - name: path
       value: pipeline.yaml

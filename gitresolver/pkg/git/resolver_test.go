@@ -45,16 +45,16 @@ func TestValidateParams(t *testing.T) {
 	resolver := Resolver{}
 
 	paramsWithCommit := map[string]string{
-		PathParam:   "bar",
-		CommitParam: "baz",
+		PathParam:     "bar",
+		RevisionParam: "baz",
 	}
 	if err := resolver.ValidateParams(context.Background(), paramsWithCommit); err != nil {
 		t.Fatalf("unexpected error validating params: %v", err)
 	}
 
 	paramsWithBranch := map[string]string{
-		PathParam:   "bar",
-		BranchParam: "baz",
+		PathParam:     "bar",
+		RevisionParam: "baz",
 	}
 	if err := resolver.ValidateParams(context.Background(), paramsWithBranch); err != nil {
 		t.Fatalf("unexpected error validating params: %v", err)
@@ -67,26 +67,12 @@ func TestValidateParamsMissing(t *testing.T) {
 	var err error
 
 	paramsMissingPath := map[string]string{
-		URLParam:    "foo",
-		BranchParam: "baz",
+		URLParam:      "foo",
+		RevisionParam: "baz",
 	}
 	err = resolver.ValidateParams(context.Background(), paramsMissingPath)
 	if err == nil {
 		t.Fatalf("expected missing pathInRepo err")
-	}
-}
-
-func TestValidateParamsConflictingGitRef(t *testing.T) {
-	resolver := Resolver{}
-	params := map[string]string{
-		URLParam:    "foo",
-		PathParam:   "bar",
-		CommitParam: "baz",
-		BranchParam: "quux",
-	}
-	err := resolver.ValidateParams(context.Background(), params)
-	if err == nil {
-		t.Fatalf("expected err due to conflicting commit and branch params")
 	}
 }
 
@@ -119,7 +105,7 @@ func TestResolve(t *testing.T) {
 	testCases := []struct {
 		name            string
 		commits         []commitForRepo
-		branch          string
+		revision        string
 		useNthCommit    int
 		specificCommit  string
 		pathInRepo      string
@@ -127,7 +113,7 @@ func TestResolve(t *testing.T) {
 		expectedErr     error
 	}{
 		{
-			name: "single commit",
+			name: "single commit with default revision",
 			commits: []commitForRepo{{
 				Dir:      "foo/bar",
 				Filename: "somefile",
@@ -136,7 +122,7 @@ func TestResolve(t *testing.T) {
 			pathInRepo:      "foo/bar/somefile",
 			expectedContent: []byte("some content"),
 		}, {
-			name: "with branch",
+			name: "branch revision",
 			commits: []commitForRepo{{
 				Dir:      "foo/bar",
 				Filename: "somefile",
@@ -147,23 +133,38 @@ func TestResolve(t *testing.T) {
 				Filename: "somefile",
 				Content:  "wrong content",
 			}},
-			branch:          "other-branch",
+			revision:        "other-branch",
 			pathInRepo:      "foo/bar/somefile",
 			expectedContent: []byte("some content"),
 		}, {
-			name: "earlier specific commit",
+			name: "commit revision",
 			commits: []commitForRepo{{
 				Dir:      "foo/bar",
 				Filename: "somefile",
-				Content:  "some content",
+				Content:  "some content 1",
 			}, {
 				Dir:      "foo/bar",
 				Filename: "somefile",
-				Content:  "different content",
+				Content:  "some content 2",
 			}},
-			pathInRepo:      "foo/bar/somefile",
 			useNthCommit:    1,
-			expectedContent: []byte("different content"),
+			pathInRepo:      "foo/bar/somefile",
+			expectedContent: []byte("some content 2"),
+		}, {
+			name: "tag revision",
+			commits: []commitForRepo{{
+				Dir:      "foo/bar",
+				Filename: "somefile",
+				Content:  "some content 1",
+				Tag:      "tag1",
+			}, {
+				Dir:      "foo/bar",
+				Filename: "somefile",
+				Content:  "some content 2",
+			}},
+			revision:        "tag1",
+			pathInRepo:      "foo/bar/somefile",
+			expectedContent: []byte("some content 1"),
 		}, {
 			name: "file does not exist",
 			commits: []commitForRepo{{
@@ -174,25 +175,15 @@ func TestResolve(t *testing.T) {
 			pathInRepo:  "foo/bar/some other file",
 			expectedErr: errors.New(`error opening file "foo/bar/some other file": file does not exist`),
 		}, {
-			name: "branch does not exist",
+			name: "revision does not exist",
 			commits: []commitForRepo{{
 				Dir:      "foo/bar",
 				Filename: "somefile",
 				Content:  "some content",
 			}},
-			branch:      "does-not-exist",
-			pathInRepo:  "foo/bar/some other file",
-			expectedErr: errors.New(`clone error: couldn't find remote ref "refs/heads/does-not-exist"`),
-		}, {
-			name: "commit does not exist",
-			commits: []commitForRepo{{
-				Dir:      "foo/bar",
-				Filename: "somefile",
-				Content:  "some content",
-			}},
-			specificCommit: "does-not-exist",
-			pathInRepo:     "foo/bar/some other file",
-			expectedErr:    errors.New("checkout error: object not found"),
+			revision:    "does-not-exist",
+			pathInRepo:  "foo/bar/somefile",
+			expectedErr: errors.New(`revision error: reference not found`),
 		},
 	}
 
@@ -200,22 +191,22 @@ func TestResolve(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			repoPath, commits := createTestRepo(t, tc.commits)
 			resolver := &Resolver{}
-
 			params := map[string]string{
 				URLParam:  repoPath,
 				PathParam: tc.pathInRepo,
 			}
 
-			if tc.branch != "" {
-				params[BranchParam] = tc.branch
+			if tc.useNthCommit > 0 {
+				params[RevisionParam] = commits[plumbing.Master.Short()][tc.useNthCommit]
+			} else if tc.revision != "" {
+				params[RevisionParam] = tc.revision
 			}
 
-			if tc.useNthCommit > 0 {
-				params[CommitParam] = commits[plumbing.Master.Short()][tc.useNthCommit]
-			} else if tc.specificCommit != "" {
-				params[CommitParam] = hex.EncodeToString([]byte(tc.specificCommit))
+			v := map[string]string{
+				ConfigRevision: plumbing.Master.Short(),
 			}
-			output, err := resolver.Resolve(context.Background(), params)
+			output, err := resolver.Resolve(context.WithValue(context.Background(), struct{}{}, v), params)
+
 			if tc.expectedErr != nil {
 				if err == nil {
 					t.Fatalf("expected err '%v' but didn't get one", tc.expectedErr)
@@ -227,19 +218,17 @@ func TestResolve(t *testing.T) {
 				if err != nil {
 					t.Fatalf("unexpected error resolving: %v", err)
 				}
-
 				expectedResource := &ResolvedGitResource{
 					Content: tc.expectedContent,
 				}
-				switch {
-				case tc.useNthCommit > 0:
-					expectedResource.Commit = commits[plumbing.Master.Short()][tc.useNthCommit]
-				case tc.branch != "":
-					expectedResource.Commit = commits[tc.branch][len(commits[tc.branch])-1]
-				default:
-					expectedResource.Commit = commits[plumbing.Master.Short()][len(commits[plumbing.Master.Short()])-1]
-				}
 
+				if tc.useNthCommit > 0 {
+					expectedResource.Revision = commits[plumbing.Master.Short()][tc.useNthCommit]
+				} else if tc.revision == "" {
+					expectedResource.Revision = plumbing.Master.Short()
+				} else {
+					expectedResource.Revision = tc.revision
+				}
 				if d := cmp.Diff(expectedResource, output); d != "" {
 					t.Errorf("unexpected resource from Resolve: %s", diff.PrintWantGot(d))
 				}
@@ -254,7 +243,7 @@ func TestController(t *testing.T) {
 	testCases := []struct {
 		name           string
 		commits        []commitForRepo
-		branch         string
+		revision       string
 		useNthCommit   int
 		specificCommit string
 		pathInRepo     string
@@ -291,8 +280,33 @@ func TestController(t *testing.T) {
 				Filename: "somefile",
 				Content:  "wrong content",
 			}},
-			branch:     "other-branch",
 			pathInRepo: "foo/bar/somefile",
+			revision:   "other-branch",
+			expectedStatus: &v1alpha1.ResolutionRequestStatus{
+				Status: duckv1.Status{
+					Annotations: map[string]string{
+						"content-type": "application/x-yaml",
+					},
+				},
+				ResolutionRequestStatusFields: v1alpha1.ResolutionRequestStatusFields{
+					Data: base64.StdEncoding.Strict().EncodeToString([]byte("some content")),
+				},
+			},
+		}, {
+			name: "with tag",
+			commits: []commitForRepo{{
+				Dir:      "foo/bar",
+				Filename: "somefile",
+				Content:  "some content",
+				Branch:   "other-branch",
+				Tag:      "tag1",
+			}, {
+				Dir:      "foo/bar",
+				Filename: "somefile",
+				Content:  "wrong content",
+			}},
+			pathInRepo: "foo/bar/somefile",
+			revision:   "tag1",
 			expectedStatus: &v1alpha1.ResolutionRequestStatus{
 				Status: duckv1.Status{
 					Annotations: map[string]string{
@@ -351,8 +365,8 @@ func TestController(t *testing.T) {
 				Filename: "somefile",
 				Content:  "some content",
 			}},
-			branch:     "does-not-exist",
 			pathInRepo: "foo/bar/some other file",
+			revision:   "does-not-exist",
 			expectedStatus: &v1alpha1.ResolutionRequestStatus{
 				Status: duckv1.Status{
 					Conditions: duckv1.Conditions{{
@@ -362,7 +376,7 @@ func TestController(t *testing.T) {
 					}},
 				},
 			},
-			expectedErr: errors.New(`error getting "Git" "foo/rr": clone error: couldn't find remote ref "refs/heads/does-not-exist"`),
+			expectedErr: errors.New(`error getting "Git" "foo/rr": revision error: reference not found`),
 		}, {
 			name: "commit does not exist",
 			commits: []commitForRepo{{
@@ -381,17 +395,16 @@ func TestController(t *testing.T) {
 					}},
 				},
 			},
-			expectedErr: errors.New(`error getting "Git" "foo/rr": checkout error: object not found`),
+			expectedErr: errors.New(`error getting "Git" "foo/rr": revision error: reference not found`),
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			ctx, _ := ttesting.SetupFakeContext(t)
-
 			repoPath, commits := createTestRepo(t, tc.commits)
 
-			request := createRequest(repoPath, tc.pathInRepo, tc.branch, tc.specificCommit, tc.useNthCommit, commits)
+			request := createRequest(repoPath, tc.pathInRepo, tc.revision, tc.specificCommit, tc.useNthCommit, commits)
 			resolver := &Resolver{}
 
 			var expectedStatus *v1alpha1.ResolutionRequestStatus
@@ -399,18 +412,11 @@ func TestController(t *testing.T) {
 				expectedStatus = tc.expectedStatus.DeepCopy()
 
 				if tc.expectedErr == nil {
-					// Add the expected commit to the expected status annotations, but only if we expect success.
-					if cmt, ok := request.Spec.Parameters[CommitParam]; ok {
-						expectedStatus.Annotations[AnnotationKeyCommitHash] = cmt
+					// Add the expected revision to the expected status annotations, but only if we expect success.
+					if revision, ok := request.Spec.Parameters[RevisionParam]; ok {
+						expectedStatus.Annotations[AnnotationKeyRevision] = revision
 					} else {
-						branchForCommit := plumbing.Master.Short()
-						if tc.branch != "" {
-							branchForCommit = tc.branch
-						}
-						if _, ok := commits[branchForCommit]; ok {
-							cmt := commits[branchForCommit][len(commits[branchForCommit])-1]
-							expectedStatus.Annotations[AnnotationKeyCommitHash] = cmt
-						}
+						expectedStatus.Annotations[AnnotationKeyRevision] = plumbing.Master.Short()
 					}
 				} else {
 					expectedStatus.Status.Conditions[0].Message = tc.expectedErr.Error()
@@ -424,6 +430,7 @@ func TestController(t *testing.T) {
 					},
 					Data: map[string]string{
 						ConfigFieldTimeout: "1m",
+						ConfigRevision:     plumbing.Master.Short(),
 					},
 				}},
 				ResolutionRequests: []*v1alpha1.ResolutionRequest{request},
@@ -466,7 +473,7 @@ func createTestRepo(t *testing.T, commits []commitForRepo) (string, map[string][
 		}
 
 		if _, ok := hashesByBranch[branch]; !ok && branch != plumbing.Master.Short() {
-			coOpts.Hash = plumbing.NewHash(startingHash)
+			coOpts.Hash = plumbing.NewHash(startingHash.String())
 			coOpts.Create = true
 		}
 
@@ -477,9 +484,23 @@ func createTestRepo(t *testing.T, commits []commitForRepo) (string, map[string][
 		hash := writeAndCommitToTestRepo(t, worktree, tempDir, cmt.Dir, cmt.Filename, []byte(cmt.Content))
 
 		if _, ok := hashesByBranch[branch]; !ok {
-			hashesByBranch[branch] = []string{hash}
+			hashesByBranch[branch] = []string{hash.String()}
 		} else {
-			hashesByBranch[branch] = append(hashesByBranch[branch], hash)
+			hashesByBranch[branch] = append(hashesByBranch[branch], hash.String())
+		}
+
+		if cmt.Tag != "" {
+			_, err = repo.CreateTag(cmt.Tag, hash, &git.CreateTagOptions{
+				Message: cmt.Tag,
+				Tagger: &object.Signature{
+					Name:  "Someone",
+					Email: "someone@example.com",
+					When:  time.Now(),
+				},
+			})
+		}
+		if err != nil {
+			t.Fatalf("couldn't add tag for %s: %v", cmt.Tag, err)
 		}
 	}
 
@@ -492,9 +513,10 @@ type commitForRepo struct {
 	Filename string
 	Content  string
 	Branch   string
+	Tag      string
 }
 
-func writeAndCommitToTestRepo(t *testing.T, worktree *git.Worktree, repoDir string, subPath string, filename string, content []byte) string {
+func writeAndCommitToTestRepo(t *testing.T, worktree *git.Worktree, repoDir string, subPath string, filename string, content []byte) plumbing.Hash {
 	t.Helper()
 
 	targetDir := repoDir
@@ -534,7 +556,7 @@ func writeAndCommitToTestRepo(t *testing.T, worktree *git.Worktree, repoDir stri
 		t.Fatalf("couldn't perform commit for test: %v", err)
 	}
 
-	return hash.String()
+	return hash
 }
 
 // withTemporaryGitConfig resets the .gitconfig for the duration of the test.
@@ -561,7 +583,7 @@ func withTemporaryGitConfig(t *testing.T) func() {
 	return clean
 }
 
-func createRequest(repoURL, pathInRepo, branch, specificCommit string, useNthCommit int, commitsByBranch map[string][]string) *v1alpha1.ResolutionRequest {
+func createRequest(repoURL, pathInRepo, revision, specificCommit string, useNthCommit int, commitsByBranch map[string][]string) *v1alpha1.ResolutionRequest {
 	rr := &v1alpha1.ResolutionRequest{
 		TypeMeta: metav1.TypeMeta{
 			APIVersion: "resolution.tekton.dev/v1alpha1",
@@ -583,14 +605,12 @@ func createRequest(repoURL, pathInRepo, branch, specificCommit string, useNthCom
 		},
 	}
 
-	if branch != "" {
-		rr.Spec.Parameters[BranchParam] = branch
-	}
-
 	if useNthCommit > 0 {
-		rr.Spec.Parameters[CommitParam] = commitsByBranch[plumbing.Master.Short()][useNthCommit]
+		rr.Spec.Parameters[RevisionParam] = commitsByBranch[plumbing.Master.Short()][useNthCommit]
 	} else if specificCommit != "" {
-		rr.Spec.Parameters[CommitParam] = hex.EncodeToString([]byte(specificCommit))
+		rr.Spec.Parameters[RevisionParam] = hex.EncodeToString([]byte(specificCommit))
+	} else if revision != "" {
+		rr.Spec.Parameters[RevisionParam] = revision
 	}
 
 	return rr

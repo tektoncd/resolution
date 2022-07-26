@@ -19,6 +19,7 @@ package git
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"strings"
@@ -26,6 +27,7 @@ import (
 
 	"github.com/go-git/go-billy/v5/memfs"
 	git "github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/config"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/storage/memory"
 	resolutioncommon "github.com/tektoncd/resolution/pkg/common"
@@ -88,10 +90,6 @@ func (r *Resolver) ValidateParams(_ context.Context, params map[string]string) e
 		return fmt.Errorf("missing %v", strings.Join(missing, ", "))
 	}
 
-	if params[CommitParam] != "" && params[BranchParam] != "" {
-		return fmt.Errorf("supplied both %q and %q", CommitParam, BranchParam)
-	}
-
 	// TODO(sbwsg): validate repo url is well-formed, git:// or https://
 	// TODO(sbwsg): validate pathInRepo is valid relative pathInRepo
 
@@ -107,36 +105,38 @@ func (r *Resolver) Resolve(ctx context.Context, params map[string]string) (frame
 		if urlString, ok := conf[ConfigURL]; ok {
 			repo = urlString
 		} else {
-			return nil, fmt.Errorf("default Git Repo Url  was not set during installation of the git resolver")
+			return nil, fmt.Errorf("default Git Repo Url was not set during installation of the git resolver")
 		}
 	}
-	commit := params[CommitParam]
-	branch := params[BranchParam]
-	if commit == "" && branch == "" {
-		if branchString, ok := conf[ConfigBranch]; ok {
-			branch = branchString
+
+	revision := params[RevisionParam]
+	if revision == "" {
+		if revisionString, ok := conf[ConfigRevision]; ok {
+			revision = revisionString
+		} else {
+			return nil, fmt.Errorf("default Git Revision was not set during installation of the git resolver")
 		}
 	}
-	path := params[PathParam]
 
 	cloneOpts := &git.CloneOptions{
 		URL: repo,
 	}
 	filesystem := memfs.New()
-	if branch != "" {
-		cloneOpts.SingleBranch = true
-		cloneOpts.ReferenceName = plumbing.NewBranchReferenceName(branch)
-	}
 	repository, err := git.Clone(memory.NewStorage(), filesystem, cloneOpts)
 	if err != nil {
 		return nil, fmt.Errorf("clone error: %w", err)
 	}
-	if commit == "" {
-		headRef, err := repository.Head()
-		if err != nil {
-			return nil, fmt.Errorf("error reading repository HEAD value: %w", err)
+
+	// try fetch the branch when the given revision refers to a branch name
+	refSpec := config.RefSpec(fmt.Sprintf("+refs/heads/%s:refs/remotes/%s", revision, revision))
+	err = repository.Fetch(&git.FetchOptions{
+		RefSpecs: []config.RefSpec{refSpec},
+	})
+	if err != nil {
+		var fetchErr git.NoMatchingRefSpecError
+		if !errors.As(err, &fetchErr) {
+			return nil, fmt.Errorf("unexpected fetch error: %v", err)
 		}
-		commit = headRef.Hash().String()
 	}
 
 	w, err := repository.Worktree()
@@ -144,13 +144,19 @@ func (r *Resolver) Resolve(ctx context.Context, params map[string]string) (frame
 		return nil, fmt.Errorf("worktree error: %v", err)
 	}
 
+	h, err := repository.ResolveRevision(plumbing.Revision(revision))
+	if err != nil {
+		return nil, fmt.Errorf("revision error: %v", err)
+	}
+
 	err = w.Checkout(&git.CheckoutOptions{
-		Hash: plumbing.NewHash(commit),
+		Hash: *h,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("checkout error: %v", err)
 	}
 
+	path := params[PathParam]
 	f, err := filesystem.Open(path)
 	if err != nil {
 		return nil, fmt.Errorf("error opening file %q: %v", path, err)
@@ -163,8 +169,8 @@ func (r *Resolver) Resolve(ctx context.Context, params map[string]string) (frame
 	}
 
 	return &ResolvedGitResource{
-		Commit:  commit,
-		Content: buf.Bytes(),
+		Revision: revision,
+		Content:  buf.Bytes(),
 	}, nil
 }
 
@@ -194,8 +200,8 @@ func (r *Resolver) GetResolutionTimeout(ctx context.Context, defaultTimeout time
 // ResolvedGitResource implements framework.ResolvedResource and returns
 // the resolved file []byte data and an annotation map for any metadata.
 type ResolvedGitResource struct {
-	Commit  string
-	Content []byte
+	Revision string
+	Content  []byte
 }
 
 var _ framework.ResolvedResource = &ResolvedGitResource{}
@@ -209,7 +215,7 @@ func (r *ResolvedGitResource) Data() []byte {
 // from git.
 func (r *ResolvedGitResource) Annotations() map[string]string {
 	return map[string]string{
-		AnnotationKeyCommitHash:                   r.Commit,
+		AnnotationKeyRevision:                     r.Revision,
 		resolutioncommon.AnnotationKeyContentType: YAMLContentType,
 	}
 }
