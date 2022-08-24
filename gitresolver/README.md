@@ -56,7 +56,7 @@ spec:
     resolver: git
     resource:
     - name: url
-      value: https://github.com/sbwsg/catalog.git
+      value: https://github.com/tektoncd/catalog.git
     - name: revision
       value: main
     - name: pathInRepo
