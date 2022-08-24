@@ -47,7 +47,7 @@ Resolvers do the heavy lifting fetching tekton resources from remote places (lik
 |-------------------------------------------------------------|----------------------------------------------------------------------------------|-----------|
 | [`Bundle`](./bundleresolver)                                | Returns entries from oci bundles                                                 | Alpha |
 | [`Git`](./gitresolver)                                      | Returns files from git repos                                                     | Alpha |
-| [`Hub`](https://github.com/sbwsg/hubresolver)               | Uses the [Tekton Hub API](https://github.com/tektoncd/hub) to fetch tasks and pipelines | Alpha |
+| [`Hub`](./hubresolver)                                      | Uses the [Tekton Hub API](https://github.com/tektoncd/hub) to fetch tasks and pipelines | Alpha |
 | [`ClusterScoped`](https://github.com/sbwsg/clusterresolver) | Shares a single set of tasks and pipelines across all namespaces in your cluster | Alpha |
 
 Want to integrate with a remote location that isn't listed here? [Write a new resolver](./docs/how-to-write-a-resolver.md) or [post an issue requesting one](https://github.com/tektoncd/resolution/issues/new?assignees=&labels=kind%2Ffeature&template=feature-request.md).
