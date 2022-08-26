@@ -50,21 +50,18 @@ for the name, namespace and defaults that the resolver ships with.
 ```yaml
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
-metadata:
-  name: git-demo
+metadata: 
+  name: demo-pipeline-run
 spec:
   pipelineRef:
     resolver: git
     resource:
     - name: url
-      value: https://github.com/sbwsg/catalog.git
+      value: https://github.com/QuanZhang-William/catalog
     - name: revision
-      value: main
+      value: demo-catalog-branch
     - name: pathInRepo
       value: pipeline/simple/0.1/simple.yaml
-  params:
-  - name: name
-    value: Ranni
 ```
 
 ### `ResolutionRequest`
