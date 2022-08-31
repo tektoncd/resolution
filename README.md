@@ -1,9 +1,8 @@
 # Tekton Resolution
 
-**Warning: Tekton Resolution is under development and currently only
-suitable for those interested in testing the project at its bleeding
-edge. Breakages to the API, types, libraries and resolvers are unavoidable
-at this stage.**
+**NOTE: The separate Tekton Resolution project has been deprecated. Its code
+has been moved into https://github.com/tektoncd/pipeline, and will be included
+in Pipeline release v0.40.0.**
 
 Pluggable resolution for Tekton resources (like `Tasks` and
 `Pipelines`). Store and utilize Tekton resources from git,
