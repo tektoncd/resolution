@@ -19,7 +19,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"os"
 	"os/exec"
 	"time"
 
@@ -130,12 +129,12 @@ func (tsa *tokenSourceAuth) Authorization() (*authn.AuthConfig, error) {
 //
 // `gcloud config config-helper --format=json(credential)` looks something like:
 //
-// {
-//   "credential": {
-//     "access_token": "ya29.abunchofnonsense",
-//     "token_expiry": "2018-12-02T04:08:13Z"
-//   }
-// }
+//	{
+//	  "credential": {
+//	    "access_token": "supersecretaccesstoken",
+//	    "token_expiry": "2018-12-02T04:08:13Z"
+//	  }
+//	}
 type gcloudOutput struct {
 	Credential struct {
 		AccessToken string `json:"access_token"`
@@ -155,7 +154,7 @@ func (gs gcloudSource) Token() (*oauth2.Token, error) {
 	cmd.Stdout = &out
 
 	// Don't attempt to interpret stderr, just pass it through.
-	cmd.Stderr = os.Stderr
+	cmd.Stderr = logs.Warn.Writer()
 
 	if err := cmd.Run(); err != nil {
 		return nil, fmt.Errorf("error executing `gcloud config config-helper`: %w", err)
